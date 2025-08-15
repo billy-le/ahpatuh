@@ -7,7 +7,7 @@ interface MonthCalendarProps {
   onDateClick: (date: Date) => void;
   onPrevMonthClick: () => void;
   onNextMonthClick: () => void;
-  onWheelChange: React.WheelEventHandler,
+  onWheelChange?: React.WheelEventHandler,
   blockPastDatesFrom?: Date,
   blockFutureDatesFrom?: Date,
   lang: string
