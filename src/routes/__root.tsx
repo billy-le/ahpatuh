@@ -3,7 +3,7 @@ import {
   HeadContent,
   Outlet,
   Scripts,
-  createRootRoute,
+  createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import * as React from 'react'
@@ -11,8 +11,14 @@ import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary'
 import { NotFound } from '../components/NotFound'
 import appCss from '../styles/app.css?url'
 import { seo } from '../utils/seo'
+import type { QueryClient } from '@tanstack/react-query'
+import { authQueries } from '~/services/auth.query'
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  beforeLoad: async (ctx) => {
+    const session = await ctx.context.queryClient.fetchQuery(authQueries.userSession())
+    return { userSession: session?.userSession }
+  },
   head: () => ({
     meta: [
       {
