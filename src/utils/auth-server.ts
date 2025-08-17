@@ -1,29 +1,24 @@
 import { betterAuth } from "better-auth";
-import { reactStartCookies } from "better-auth/react-start";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { drizzle } from "drizzle-orm/libsql";
-import * as schema from "~/db/schema";
+import { convex } from "@convex-dev/better-auth/plugins";
+import { convexAdapter } from "@convex-dev/better-auth";
+import { betterAuthComponent } from "../../convex/auth";
+import { type GenericCtx } from "../../convex/_generated/server";
 
-export const db = drizzle({
-  connection: {
-    url: process.env.TURSO_DATABASE_URL!,
-    authToken: process.env.TURSO_AUTH_TOKEN!,
-  },
-});
+const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
 
-export const auth = betterAuth({
-  baseUrl: process.env.BETTER_AUTH_URL,
-  secret: process.env.BETTER_AUTH_SECRET,
-  sesseion: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 24 * 60, // one day
+export const auth = (ctx: GenericCtx) => {
+  return betterAuth({
+    baseUrl,
+    secret: process.env.BETTER_AUTH_SECRET,
+    trustedOrigins: [baseUrl],
+    session: {
+      cookieCache: {
+        enabled: true,
+        maxAge: 24 * 60, // one day
+      },
     },
-  },
-  database: drizzleAdapter(db, {
-    provider: "sqlite",
-    schema: schema,
-  }),
-  emailAndPassword: { enabled: true },
-  plugins: [reactStartCookies()],
-});
+    database: convexAdapter(ctx, betterAuthComponent),
+    emailAndPassword: { enabled: true, requireEmailVerification: false },
+    plugins: [convex()],
+  });
+};

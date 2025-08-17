@@ -9,7 +9,7 @@ import { authClient } from '~/utils/auth-client';
 
 export const Route = createFileRoute('/_authenticated/dashboard')({
   beforeLoad: async (ctx) => {
-    if (!ctx.context.userSession) {
+    if (!ctx.context.userId) {
       throw redirect({ to: '/' })
     }
   },
@@ -36,13 +36,16 @@ function Home() {
         <LangSelector
           langs={langs}
           onLangChange={setLang} />
-        <button onClick={async () => {
-          await authClient.signOut({
+        <button onClick={() => {
+          authClient.signOut({
             fetchOptions: {
               onSuccess: () => {
                 router.navigate({ to: '/' })
+              },
+              onError: (e) => {
+                console.log(e)
               }
-            }
+            },
           })
         }}>
           Sign Out

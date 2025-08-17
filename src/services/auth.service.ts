@@ -2,21 +2,23 @@ import { createMiddleware, createServerFn, json } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import { auth } from "~/utils/auth-server";
 
-export const getUserSession = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getSession = createServerFn({ method: "GET" }).handler(
+  async ({ context }) => {
     const request = getWebRequest();
     if (!request.headers) {
       return null;
     }
-    const userSession = await auth.api.getSession({ headers: request.headers });
-    return { userSession };
+    const session = await auth(context).api.getSession({
+      headers: request.headers,
+    });
+    return session;
   },
 );
 
 export const userMiddleware = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
-    const userSession = await getUserSession();
-    return next({ context: { userSession } });
+    const session = await getSession();
+    return next({ context: { userSession: session } });
   },
 );
 
