@@ -1,6 +1,7 @@
 import { createMiddleware, createServerFn, json } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 import { auth } from "~/utils/auth-server";
+import type { GenericCtx } from "convex/_generated/server";
 
 export const getSession = createServerFn({ method: "GET" }).handler(
   async ({ context }) => {
@@ -8,9 +9,11 @@ export const getSession = createServerFn({ method: "GET" }).handler(
     if (!request.headers) {
       return null;
     }
-    const session = await auth(context).api.getSession({
-      headers: request.headers,
-    });
+    const session = await auth(context as unknown as GenericCtx).api.getSession(
+      {
+        headers: request.headers,
+      },
+    );
     return session;
   },
 );

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect, useRouter } from '@tanstack/react-router'
 import { authClient } from '~/utils/auth-client'
 export const Route = createFileRoute('/sign-up')({
   beforeLoad: (ctx) => {
@@ -10,6 +10,7 @@ export const Route = createFileRoute('/sign-up')({
 })
 
 function SignUp() {
+  const router = useRouter()
   const handleSignUp: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     const form = new FormData(e.target as HTMLFormElement)
@@ -17,7 +18,10 @@ function SignUp() {
       name: form.get('name'),
       email: form.get('email'),
       password: form.get('password'),
-      callbackURL: '/dashboard',
+    }, {
+      onSuccess: () => {
+        router.navigate({ to: '/dashboard' })
+      }
     })
   }
 
