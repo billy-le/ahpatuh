@@ -1,10 +1,10 @@
-import { betterAuth } from "better-auth";
-import { convex } from "@convex-dev/better-auth/plugins";
-import { convexAdapter } from "@convex-dev/better-auth";
-import { betterAuthComponent } from "../../convex/auth";
-import { type GenericCtx } from "../../convex/_generated/server";
+import { betterAuth } from 'better-auth';
+import { convex } from '@convex-dev/better-auth/plugins';
+import { convexAdapter } from '@convex-dev/better-auth';
+import { betterAuthComponent } from '../../convex/auth';
+import { type GenericCtx } from '../../convex/_generated/server';
 
-const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000";
+const baseUrl = process.env.BETTER_AUTH_URL || 'http://localhost:3000';
 
 export const auth = (ctx: GenericCtx) => {
   return betterAuth({

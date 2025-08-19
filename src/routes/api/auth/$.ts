@@ -1,7 +1,7 @@
-import { reactStartHandler } from "~/utils/server-auth-utils";
-import { createServerFileRoute } from "@tanstack/react-start/server";
+import { reactStartHandler } from '~/utils/server-auth-utils';
+import { createServerFileRoute } from '@tanstack/react-start/server';
 
-export const ServerRoute = createServerFileRoute("/api/auth/$").methods({
+export const ServerRoute = createServerFileRoute('/api/auth/$').methods({
   GET: ({ request }) => {
     return reactStartHandler(request);
   },

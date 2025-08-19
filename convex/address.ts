@@ -1,5 +1,5 @@
-import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { v } from 'convex/values';
+import { mutation, query } from './_generated/server';
 
 export const createAddress = mutation({
   args: {
@@ -9,10 +9,10 @@ export const createAddress = mutation({
     state: v.string(),
     country: v.string(),
     postalCode: v.string(),
-    businessId: v.id("businesses"),
+    businessId: v.id('businesses'),
   },
   handler: async (ctx, args) => {
-    return ctx.db.insert("addresses", {
+    return ctx.db.insert('addresses', {
       ...args,
       updatedAt: new Date().toISOString(),
     });
@@ -21,9 +21,9 @@ export const createAddress = mutation({
 
 export const getAddress = query({
   args: {
-    businessId: v.id("businesses"),
+    businessId: v.id('businesses'),
   },
   handler: async (ctx, args) => {
-    return ctx.db.query("addresses", { businessId: args.businessId }).first();
+    return ctx.db.query('addresses', { businessId: args.businessId }).first();
   },
 });

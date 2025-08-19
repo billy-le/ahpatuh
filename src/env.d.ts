@@ -1,7 +1,7 @@
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      NODE_ENV: "development" | "production" | "test";
+      NODE_ENV: 'development' | 'production' | 'test';
       CONVEX_DEPLOYMENT: string;
       VITE_CONVEX_URL: string;
       VITE_CONVEX_SITE_URL: string;

@@ -2,10 +2,10 @@ import {
   BetterAuth,
   type AuthFunctions,
   type PublicAuthFunctions,
-} from "@convex-dev/better-auth";
-import { api, internal, components } from "./_generated/api";
-import { query } from "./_generated/server";
-import type { Id, DataModel } from "./_generated/dataModel";
+} from '@convex-dev/better-auth';
+import { api, internal, components } from './_generated/api';
+import { query } from './_generated/server';
+import type { Id, DataModel } from './_generated/dataModel';
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth;
 const publicAuthFunctions: PublicAuthFunctions = api.auth;
@@ -27,12 +27,12 @@ export const {
 } = betterAuthComponent.createAuthFunctions<DataModel>({
   // Must create a user and return the user id
   onCreateUser: async (ctx, user) => {
-    return ctx.db.insert("users", {});
+    return ctx.db.insert('users', {});
   },
 
   // Delete the user when they are deleted from Better Auth
   onDeleteUser: async (ctx, userId) => {
-    await ctx.db.delete(userId as Id<"users">);
+    await ctx.db.delete(userId as Id<'users'>);
   },
 });
 
@@ -48,7 +48,7 @@ export const getCurrentUser = query({
     }
     // Get user data from your application's database
     // (skip this if you have no fields in your users table schema)
-    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    const user = await ctx.db.get(userMetadata.userId as Id<'users'>);
     return {
       ...user,
       ...userMetadata,

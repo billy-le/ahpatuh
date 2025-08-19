@@ -1,6 +1,6 @@
-import { httpRouter } from "convex/server";
-import { betterAuthComponent } from "./auth";
-import { auth } from "../src/utils/auth-server";
+import { httpRouter } from 'convex/server';
+import { betterAuthComponent } from './auth';
+import { auth } from '../src/utils/auth-server';
 
 const http = httpRouter();
 

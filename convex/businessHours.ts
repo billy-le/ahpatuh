@@ -1,5 +1,5 @@
-import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { v } from 'convex/values';
+import { mutation, query } from './_generated/server';
 
 export const createBusinessHours = mutation({
   args: {
@@ -19,12 +19,12 @@ export const createBusinessHours = mutation({
         isClosed: v.boolean(),
       }),
     ),
-    businessId: v.id("businesses"),
+    businessId: v.id('businesses'),
   },
   handler: async (ctx, args) => {
     return Promise.all(
       args.businessHours.map((businessHour) =>
-        ctx.db.insert("businessHours", {
+        ctx.db.insert('businessHours', {
           ...businessHour,
           businessId: args.businessId,
           updatedAt: new Date().toISOString(),
@@ -36,11 +36,11 @@ export const createBusinessHours = mutation({
 
 export const getBusinessHours = query({
   args: {
-    businessId: v.id("businesses"),
+    businessId: v.id('businesses'),
   },
   handler: async (ctx, args) => {
     return ctx.db
-      .query("businessHours", { businessId: args.businessId })
+      .query('businessHours', { businessId: args.businessId })
       .collect();
   },
 });
