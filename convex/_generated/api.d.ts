@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as address from "../address.js";
 import type * as auth from "../auth.js";
 import type * as business from "../business.js";
+import type * as businessHours from "../businessHours.js";
 import type * as employees from "../employees.js";
 import type * as http from "../http.js";
 
@@ -28,8 +30,10 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  address: typeof address;
   auth: typeof auth;
   business: typeof business;
+  businessHours: typeof businessHours;
   employees: typeof employees;
   http: typeof http;
 }>;

@@ -6,6 +6,7 @@ export const business = {
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
   domain: v.optional(v.string()),
+  userId: v.id("users"),
   updatedAt: v.string(),
 };
 

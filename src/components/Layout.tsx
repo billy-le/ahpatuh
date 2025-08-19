@@ -56,9 +56,9 @@ export function Layout({ children }: React.PropsWithChildren) {
       </ul>
     </section>
 
-    <section className='grow'>
+    <main className='py-10 grow'>
       {children}
-    </section>
+    </main>
   </div>
 
 
