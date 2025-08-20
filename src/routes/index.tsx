@@ -38,9 +38,9 @@ function Home() {
                 viewBox='0 0 24 24'
                 fill='none'
                 stroke='currentColor'
-                stroke-width='2'
-                stroke-linecap='round'
-                stroke-linejoin='round'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
               >
                 <path d='M18 6 6 18' />
                 <path d='m6 6 12 12' />
@@ -67,9 +67,9 @@ function Home() {
               viewBox='0 0 24 24'
               fill='none'
               stroke='currentColor'
-              stroke-width='2'
-              stroke-linecap='round'
-              stroke-linejoin='round'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
             >
               <path d='M4 12h16' />
               <path d='M4 18h16' />
@@ -92,9 +92,9 @@ function Home() {
               <path
                 d='M3.959 9.5h11.083m0 0L9.501 3.958M15.042 9.5l-5.541 5.54'
                 stroke='#050040'
-                stroke-width='2'
-                stroke-linecap='round'
-                stroke-linejoin='round'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
               />
             </svg>
           </button>
@@ -123,9 +123,9 @@ function Home() {
               <path
                 d='M1.25.5 4.75 4l-3.5 3.5'
                 stroke='#050040'
-                stroke-opacity='.4'
-                stroke-linecap='round'
-                stroke-linejoin='round'
+                strokeOpacity='.4'
+                strokeLinecap='round'
+                strokeLinejoin='round'
               />
             </svg>
           </button>

@@ -23,13 +23,13 @@ import { authClient } from '~/utils/auth-client';
 import { getCookieName, fetchSession } from '~/utils/server-auth-utils';
 
 // Server side session request
-const fetchAuth = createServerFn({ method: 'GET' }).handler(async () => {
+export const fetchAuth = createServerFn({ method: 'GET' }).handler(async () => {
   const sessionCookieName = await getCookieName();
   const token = getCookie(sessionCookieName);
   const request = getWebRequest();
   const { session } = await fetchSession(request);
   return {
-    userId: session?.user.id,
+    userId: session?.user?.id,
     token,
   };
 });

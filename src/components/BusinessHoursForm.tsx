@@ -16,7 +16,7 @@ import { Checkbox } from './ui/checkbox';
 import { Button } from './ui/button';
 import { useMutation } from 'convex/react';
 import { api } from 'convex/_generated/api';
-import { createBusinessHours } from 'convex/businessHours';
+
 interface BusinessHoursFormProps {
   businessId: Id<'businesses'>;
   onSuccess: (businessHours: Id<'businessHours'>[]) => void;
@@ -77,14 +77,15 @@ export function BusinessHoursForm({
   return (
     <Form {...form}>
       <form
-        className='max-w-2xl mx-auto p-4 border border-slate-300 rounded-md'
+        className='max-w-4xl mx-auto p-8 space-y-4 border border-slate-300 rounded-md'
         onSubmit={form.handleSubmit(onSubmit)}
       >
+        <h1 className='text-3xl font-medium mb-10'>Business Hours</h1>
         {fields.map((field, index) => {
           return (
             <div
               key={field.id}
-              className='flex items-center gap-4 whitespace-nowrap'
+              className='grid grid-cols-4 items-center gap-8 whitespace-nowrap'
             >
               <h1>
                 {Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(
@@ -95,7 +96,7 @@ export function BusinessHoursForm({
                 control={form.control}
                 name={`businessHours.${index}.timeOpen`}
                 render={({ field }) => (
-                  <>
+                  <div className='flex gap-2'>
                     <FormLabel htmlFor={`businessHours.${index}.timeOpen`}>
                       Open
                     </FormLabel>
@@ -104,14 +105,14 @@ export function BusinessHoursForm({
                       type='time'
                       {...field}
                     />
-                  </>
+                  </div>
                 )}
               />
               <FormField
                 control={form.control}
                 name={`businessHours.${index}.timeClose`}
                 render={({ field }) => (
-                  <>
+                  <div className="flex gap-2">
                     <FormLabel htmlFor={`businessHours.${index}.timeClose`}>
                       Close
                     </FormLabel>
@@ -120,7 +121,7 @@ export function BusinessHoursForm({
                       type='time'
                       {...field}
                     />
-                  </>
+                  </div>
                 )}
               />
               <FormField

@@ -10,27 +10,22 @@ import { authClient } from '~/utils/auth-client';
 const navigation: Array<
   Pick<LinkComponentProps, 'to'> & { name: string; icon: React.ReactElement }
 > = [
-  {
-    to: '/dashboard',
-    name: 'Dashboard',
-    icon: <LayoutDashboard />,
-  },
-  {
-    to: '/calendar',
-    name: 'Calendar',
-    icon: <Calendar />,
-  },
-  {
-    to: '/employees',
-    name: 'Employees',
-    icon: <Users />,
-  },
-  {
-    to: '/settings',
-    name: 'Settings',
-    icon: <Cog />,
-  },
-];
+    {
+      to: '/dashboard',
+      name: 'Dashboard',
+      icon: <LayoutDashboard />,
+    },
+    {
+      to: '/calendar',
+      name: 'Calendar',
+      icon: <Calendar />,
+    },
+    {
+      to: '/employees',
+      name: 'Employees',
+      icon: <Users />,
+    },
+  ];
 
 export function Layout({ children }: React.PropsWithChildren) {
   const router = useRouter();
@@ -38,7 +33,7 @@ export function Layout({ children }: React.PropsWithChildren) {
     <div className='flex gap-4 min-h-dvh'>
       <section className='py-10 flex flex-col justify-between shrink-0 min-w-40 border-r border-slate-300'>
         <nav className='px-4'>
-          <ul className='space-y-2'>
+          <ul className='space-y-4'>
             {navigation.map(({ name, to, icon }) => (
               <li className='rounded hover:bg-yellow-400/20' key={name}>
                 <Link
@@ -54,7 +49,20 @@ export function Layout({ children }: React.PropsWithChildren) {
             ))}
           </ul>
         </nav>
-        <ul className='px-4'>
+        <ul className='px-4 space-y-4'>
+          <li className='rounded hover:bg-yellow-400/20'>
+            <Link
+              activeProps={{
+                className: 'block bg-yellow-300 rounded-md',
+              }}
+              to='/settings'
+            >
+              <div className='flex items-center gap-4 py-2 px-4'>
+                <Cog />
+                <span>Settings</span>
+              </div>
+            </Link>
+          </li>
           <li>
             <Button
               className='w-full'
