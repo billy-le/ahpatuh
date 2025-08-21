@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 
-import { cx } from '~/utils/cva.config';
+import { cx } from '~/lib/cva';
 
 function Label({
   className,

@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { authClient } from '~/utils/auth-client';
+import { authClient } from '~/lib/auth-client';
 import { Link } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/login')({
@@ -22,6 +22,7 @@ function Login() {
           email: form.get('email'),
           password: form.get('password'),
           callbackURL: '/dashboard',
+          rememberMe: true,
         });
       }}
     >

@@ -19,8 +19,8 @@ import { ConvexQueryClient } from '@convex-dev/react-query';
 import { ConvexReactClient } from 'convex/react';
 import { getCookie, getWebRequest } from '@tanstack/react-start/server';
 import { ConvexBetterAuthProvider } from '@convex-dev/better-auth/react';
-import { authClient } from '~/utils/auth-client';
-import { getCookieName, fetchSession } from '~/utils/server-auth-utils';
+import { authClient } from '~/lib/auth-client';
+import { getCookieName, fetchSession } from '~/lib/server-auth-utils';
 
 // Server side session request
 export const fetchAuth = createServerFn({ method: 'GET' }).handler(async () => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { addMonths, subMonths } from 'date-fns';
+import { addMonths, subMonths, isBefore } from 'date-fns';
 import { MonthCalender } from './MonthCalendar';
 import { DayCalendar } from './DayCalendar';
 
@@ -19,7 +19,12 @@ export const Calendar = ({
   const [currentDay, setCurrentDay] = useState(new Date());
 
   const goToPreviousMonth = () => {
-    setCurrentDay(subMonths(currentDay, 1));
+    const date = subMonths(currentDay, 1);
+    if (blockPastDatesFrom && isBefore(date, blockPastDatesFrom)) {
+      setCurrentDay(new Date);
+      return;
+    }
+    setCurrentDay(date);
   };
 
   const goToNextMonth = () => {
@@ -27,7 +32,7 @@ export const Calendar = ({
   };
 
   return (
-    <>
+    <div className='flex justify-center h-[600px]'>
       <MonthCalender
         lang={lang}
         date={currentDay}
@@ -40,6 +45,6 @@ export const Calendar = ({
         blockFutureDatesFrom={blockFutureDatesFrom}
       />
       <DayCalendar lang={lang} date={currentDay} />
-    </>
+    </div>
   );
 };

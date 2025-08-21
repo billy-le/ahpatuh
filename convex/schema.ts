@@ -1,12 +1,12 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
+import { defineSchema, defineTable } from 'convex/server';
+import { v } from 'convex/values';
 
 export const business = {
   name: v.string(),
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
   domain: v.optional(v.string()),
-  userId: v.id("users"),
+  userId: v.id('users'),
   updatedAt: v.string(),
 };
 
@@ -23,7 +23,7 @@ export const businessHour = {
   timeOpen: v.optional(v.string()),
   timeClose: v.optional(v.string()),
   isClosed: v.boolean(),
-  businessId: v.id("businesses"),
+  businessId: v.id('businesses'),
   updatedAt: v.string(),
 };
 
@@ -34,13 +34,13 @@ export const address = {
   state: v.string(),
   country: v.string(),
   postalCode: v.string(),
-  businessId: v.id("businesses"),
+  businessId: v.id('businesses'),
   updatedAt: v.string(),
 };
 
 export const role = {
   name: v.string(),
-  businessId: v.id("businesses"),
+  businessId: v.id('businesses'),
   updatedAt: v.string(),
 };
 
@@ -51,8 +51,8 @@ export const employee = {
   phone: v.optional(v.string()),
   hiredDate: v.optional(v.string()),
   isActive: v.boolean(),
-  businessId: v.id("businesses"),
-  positionId: v.id("roles"),
+  businessId: v.id('businesses'),
+  positionId: v.id('roles'),
   updatedAt: v.string(),
 };
 
@@ -64,19 +64,23 @@ export const language = {
 export default defineSchema({
   users: defineTable({
     // Fields are optional
-    langId: v.optional(v.id("languages")),
+    langId: v.optional(v.id('languages')),
     email: v.string(),
     phone: v.optional(v.string()),
     image: v.optional(v.string()),
     timeZone: v.optional(v.string()),
   }),
-  businesses: defineTable(business),
-  businessHours: defineTable(businessHour).index("business_day", [
-    "dayOfWeek",
-    "businessId",
-  ]),
-  addresses: defineTable(address).index("business", ["businessId"]),
-  roles: defineTable(role).index("unique_position", ["name", "businessId"]),
-  employees: defineTable(employee),
-  languages: defineTable(language).index("language", ["value"]),
+  businesses: defineTable(business).index('by_userId', ['userId']),
+  businessHours: defineTable(businessHour)
+    .index('business_day', ['dayOfWeek', 'businessId'])
+    .index('by_businessId', ['businessId']),
+  addresses: defineTable(address).index('by_businessId', ['businessId']),
+  roles: defineTable(role)
+    .index('by_business_id', ['businessId'])
+    .index('unique_position', ['name', 'businessId'])
+    .searchIndex('business_id', {
+      searchField: 'businessId',
+    }),
+  employees: defineTable(employee).index('by_businessId', ['businessId']),
+  languages: defineTable(language).index('language', ['value']),
 });

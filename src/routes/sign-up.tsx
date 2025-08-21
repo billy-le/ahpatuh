@@ -4,7 +4,7 @@ import {
   redirect,
   useRouter,
 } from '@tanstack/react-router';
-import { authClient } from '~/utils/auth-client';
+import { authClient } from '~/lib/auth-client';
 export const Route = createFileRoute('/sign-up')({
   beforeLoad: (ctx) => {
     if (ctx.context.userId) {

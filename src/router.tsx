@@ -12,7 +12,7 @@ export function createRouter() {
   const CONVEX_URL = import.meta.env.VITE_CONVEX_URL;
 
   if (!CONVEX_URL) {
-    throw Error('CONVEX_VITE_URL not set');
+    throw new Error('CONVEX_VITE_URL not set');
   }
 
   const convex = new ConvexReactClient(CONVEX_URL, {

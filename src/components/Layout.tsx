@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-router';
 import { LayoutDashboard, Calendar, Users, Cog } from 'lucide-react';
 import { Button } from '~/components/ui/button';
-import { authClient } from '~/utils/auth-client';
+import { authClient } from '~/lib/auth-client';
 
 const navigation: Array<
   Pick<LinkComponentProps, 'to'> & { name: string; icon: React.ReactElement }
@@ -30,7 +30,7 @@ const navigation: Array<
 export function Layout({ children }: React.PropsWithChildren) {
   const router = useRouter();
   return (
-    <div className='flex gap-4 min-h-dvh'>
+    <div className='flex min-h-dvh'>
       <section className='py-10 flex flex-col justify-between shrink-0 min-w-40 border-r border-slate-300'>
         <nav className='px-4'>
           <ul className='space-y-4'>
@@ -81,8 +81,7 @@ export function Layout({ children }: React.PropsWithChildren) {
           </li>
         </ul>
       </section>
-
-      <main className='py-10 grow'>{children}</main>
+      <main className='py-10 px-6 grow'>{children}</main>
     </div>
   );
 }

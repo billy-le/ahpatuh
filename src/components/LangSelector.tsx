@@ -1,15 +1,17 @@
 import { Id } from "convex/_generated/dataModel";
 
+type Lang = { _id: Id<'languages'>, value: string, name: string };
+
 interface LangSelectorProps {
-  langs: { _id: Id<'languages'>, value: string; name: string }[];
-  onLangChange: (lang: { _id: Id<'languages'>, value: string, name: string }) => void;
+  langs: Lang[];
+  onLangChange: (lang: Lang) => void;
+  defaultLang?: Lang
 }
 
-export const LangSelector = ({ langs, onLangChange }: LangSelectorProps) => {
+export const LangSelector = ({ langs, onLangChange, defaultLang, }: LangSelectorProps) => {
   return (
     <select
-      defaultValue='en-US'
-      defaultChecked
+      defaultValue={defaultLang ? defaultLang.value : 'en-US'}
       onChange={(e) => {
         onLangChange(langs.find(lang => e.target.value === lang.value)!);
       }}

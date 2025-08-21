@@ -1,4 +1,5 @@
 import { createFileRoute, redirect, Outlet } from '@tanstack/react-router';
+import { AuthLoading, Authenticated } from 'convex/react';
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad(ctx) {
@@ -10,5 +11,12 @@ export const Route = createFileRoute('/_authenticated')({
 });
 
 function AuthenticatedRoute() {
-  return <Outlet />;
+  return <>
+    <AuthLoading>
+      <div>Loading...</div>
+    </AuthLoading>
+    <Authenticated>
+      <Outlet />
+    </Authenticated>
+  </>
 }

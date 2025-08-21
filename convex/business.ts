@@ -1,7 +1,8 @@
 import { query, mutation } from './_generated/server';
-import { v } from 'convex/values';
+import { ConvexError, v } from 'convex/values';
 import { betterAuthComponent } from './auth';
 import { omit } from 'ramda';
+import { Id } from './_generated/dataModel';
 
 export const createBusiness = mutation({
   args: {
@@ -11,8 +12,10 @@ export const createBusiness = mutation({
     domain: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await betterAuthComponent.getAuthUserId(ctx);
-
+    const userId = (await betterAuthComponent.getAuthUserId(
+      ctx,
+    )) as Id<'users'>;
+    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
     return await ctx.db.insert('businesses', {
       name: args.name,
       email: args.email,
@@ -27,14 +30,22 @@ export const createBusiness = mutation({
 export const getBusinessDetails = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await betterAuthComponent.getAuthUserId(ctx);
-    const business = await ctx.db.query('businesses', { userId }).first();
+    const userId = (await betterAuthComponent.getAuthUserId(
+      ctx,
+    )) as Id<'users'>;
+    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
+    const business = await ctx.db
+      .query('businesses')
+      .withIndex('by_userId', (q) => q.eq('userId', userId))
+      .first();
     if (!business) return null;
     const address = await ctx.db
-      .query('addresses', { businessId: business?._id })
+      .query('addresses')
+      .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
       .first();
     const businessHours = await ctx.db
-      .query('businessHours', { businessId: business?._id })
+      .query('businessHours')
+      .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
       .collect();
     const businessOmittedFields = omit(
       ['_creationTime', 'updatedAt', 'userId'],

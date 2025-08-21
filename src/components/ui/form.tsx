@@ -11,7 +11,7 @@ import {
   type FieldValues,
 } from 'react-hook-form';
 
-import { cx } from '~/utils/cva.config';
+import { cx } from '~/lib/cva';
 import { Label } from '~/components/ui/label';
 
 const Form = FormProvider;

@@ -15,6 +15,7 @@ import type * as businessHours from "../businessHours.js";
 import type * as employees from "../employees.js";
 import type * as http from "../http.js";
 import type * as languages from "../languages.js";
+import type * as roles from "../roles.js";
 import type * as users from "../users.js";
 
 import type {
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   employees: typeof employees;
   http: typeof http;
   languages: typeof languages;
+  roles: typeof roles;
   users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

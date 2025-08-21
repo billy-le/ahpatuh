@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cx } from '~/utils/cva.config';
+import { cx } from '~/lib/cva';
 
 function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   return (

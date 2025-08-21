@@ -1,5 +1,7 @@
-import { v } from 'convex/values';
+import { ConvexError, v } from 'convex/values';
 import { mutation, query } from './_generated/server';
+import { betterAuthComponent } from './auth';
+import { Id } from './_generated/dataModel';
 
 export const createBusinessHours = mutation({
   args: {
@@ -19,14 +21,26 @@ export const createBusinessHours = mutation({
         isClosed: v.boolean(),
       }),
     ),
-    businessId: v.id('businesses'),
   },
   handler: async (ctx, args) => {
+    const userId = (await betterAuthComponent.getAuthUserId(
+      ctx,
+    )) as Id<'users'>;
+    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
+    const business = await ctx.db
+      .query('businesses')
+      .withIndex('by_userId', (q) => q.eq('userId', userId))
+      .first();
+    if (!business)
+      throw new ConvexError({
+        message: 'Cannot create business hours. Business does not exists',
+        code: 400,
+      });
     return Promise.all(
       args.businessHours.map((businessHour) =>
         ctx.db.insert('businessHours', {
           ...businessHour,
-          businessId: args.businessId,
+          businessId: business._id,
           updatedAt: new Date().toISOString(),
         }),
       ),
@@ -35,12 +49,21 @@ export const createBusinessHours = mutation({
 });
 
 export const getBusinessHours = query({
-  args: {
-    businessId: v.id('businesses'),
-  },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const userId = (await betterAuthComponent.getAuthUserId(
+      ctx,
+    )) as Id<'users'>;
+    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
+    const business = await ctx.db
+      .query('businesses')
+      .withIndex('by_userId', (q) => q.eq('userId', userId))
+      .first();
+    if (!business) return [];
+
     return ctx.db
-      .query('businessHours', { businessId: args.businessId })
+      .query('businessHours')
+      .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
       .collect();
   },
 });

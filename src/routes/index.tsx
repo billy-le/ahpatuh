@@ -1,6 +1,8 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Link } from '@tanstack/react-router';
 import { Button } from '~/components/ui/button';
+import { Unauthenticated } from 'convex/react';
+
 export const Route = createFileRoute('/')({
   component: Home,
 });
