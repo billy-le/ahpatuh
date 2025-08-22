@@ -1,7 +1,7 @@
 import { ConvexError, v } from 'convex/values';
 import { query, mutation } from './_generated/server';
 import { betterAuthComponent } from './auth';
-import { Id } from './_generated/dataModel';
+import { Id, Doc } from './_generated/dataModel';
 
 export const getEmployees = query({
   args: {},
@@ -15,10 +15,23 @@ export const getEmployees = query({
       .withIndex('by_userId', (q) => q.eq('userId', userId))
       .first();
     if (!business) return [];
-    return await ctx.db
+    const employees = await ctx.db
       .query('employees')
       .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
       .collect();
+
+    let employeesWithPosition: (Doc<'employees'> & {
+      position: Doc<'roles'>;
+    })[] = [];
+
+    for (const employee of employees) {
+      const position = await ctx.db.get(employee.positionId);
+      employeesWithPosition.push({
+        ...employee,
+        position: position!,
+      });
+    }
+    return employeesWithPosition;
   },
 });
 

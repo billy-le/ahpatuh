@@ -28,6 +28,7 @@ export const {
   // Must create a user and return the user id
   onCreateUser: async (ctx, user) => {
     return ctx.db.insert('users', {
+      name: user.name,
       email: user.email,
     });
   },

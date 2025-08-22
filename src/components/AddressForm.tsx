@@ -14,8 +14,8 @@ import { Input } from '~/components/ui/input';
 import { useMutation } from 'convex/react';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
+
 interface AddressFormProps {
-  businessId: Id<'businesses'>;
   onSuccess: (addressId: Id<'addresses'>) => void;
 }
 
@@ -28,7 +28,7 @@ const formSchema = z.object({
   postalCode: z.string(),
 });
 
-export function AddressForm({ businessId, onSuccess }: AddressFormProps) {
+export function AddressForm({ onSuccess }: AddressFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,7 +42,7 @@ export function AddressForm({ businessId, onSuccess }: AddressFormProps) {
   const createAddress = useMutation(api.address.createAddress);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await createAddress({ ...values, businessId }).then((addressId) => {
+    await createAddress(values).then((addressId) => {
       onSuccess(addressId);
     });
   };

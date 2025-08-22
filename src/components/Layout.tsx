@@ -6,6 +6,11 @@ import {
 import { LayoutDashboard, Calendar, Users, Cog } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { authClient } from '~/lib/auth-client';
+import { cx } from '~/lib/cva';
+
+interface LayoutProps extends React.PropsWithChildren {
+  className?: string
+}
 
 const navigation: Array<
   Pick<LinkComponentProps, 'to'> & { name: string; icon: React.ReactElement }
@@ -27,10 +32,10 @@ const navigation: Array<
     },
   ];
 
-export function Layout({ children }: React.PropsWithChildren) {
+export function Layout({ children, className }: LayoutProps) {
   const router = useRouter();
   return (
-    <div className='flex min-h-dvh'>
+    <div className='flex min-h-dvh bg-neutral-100'>
       <section className='py-10 flex flex-col justify-between shrink-0 min-w-40 border-r border-slate-300'>
         <nav className='px-4'>
           <ul className='space-y-4'>
@@ -81,7 +86,7 @@ export function Layout({ children }: React.PropsWithChildren) {
           </li>
         </ul>
       </section>
-      <main className='py-10 px-6 grow'>{children}</main>
-    </div>
+      <main className={cx('m-6 py-4 px-6 rounded-md grow bg-white', className)}> {children}</main>
+    </div >
   );
 }

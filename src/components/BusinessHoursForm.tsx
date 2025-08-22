@@ -18,7 +18,6 @@ import { useMutation } from 'convex/react';
 import { api } from 'convex/_generated/api';
 
 interface BusinessHoursFormProps {
-  businessId: Id<'businesses'>;
   onSuccess: (businessHours: Id<'businessHours'>[]) => void;
 }
 
@@ -38,7 +37,6 @@ const weekDays = eachDayOfInterval({
 });
 
 export function BusinessHoursForm({
-  businessId,
   onSuccess,
 }: BusinessHoursFormProps) {
   const createBusinessHours = useMutation(
@@ -67,7 +65,7 @@ export function BusinessHoursForm({
       ...businessHour,
       dayOfWeek: businessHour.dayOfWeek.getDay(),
     }));
-    await createBusinessHours({ businessId, businessHours: data }).then(
+    await createBusinessHours({ businessHours: data }).then(
       (data) => {
         onSuccess(data);
       },

@@ -49,6 +49,7 @@ export const employee = {
   lastName: v.string(),
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
+  image: v.optional(v.string()),
   hiredDate: v.optional(v.string()),
   isActive: v.boolean(),
   businessId: v.id('businesses'),
@@ -64,6 +65,7 @@ export const language = {
 export default defineSchema({
   users: defineTable({
     // Fields are optional
+    name: v.optional(v.string()),
     langId: v.optional(v.id('languages')),
     email: v.string(),
     phone: v.optional(v.string()),
@@ -77,10 +79,7 @@ export default defineSchema({
   addresses: defineTable(address).index('by_businessId', ['businessId']),
   roles: defineTable(role)
     .index('by_business_id', ['businessId'])
-    .index('unique_position', ['name', 'businessId'])
-    .searchIndex('business_id', {
-      searchField: 'businessId',
-    }),
+    .index('unique_position', ['name', 'businessId']),
   employees: defineTable(employee).index('by_businessId', ['businessId']),
   languages: defineTable(language).index('language', ['value']),
 });
