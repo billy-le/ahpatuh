@@ -36,9 +36,7 @@ const weekDays = eachDayOfInterval({
   end: endOfWeek(new Date()),
 });
 
-export function BusinessHoursForm({
-  onSuccess,
-}: BusinessHoursFormProps) {
+export function BusinessHoursForm({ onSuccess }: BusinessHoursFormProps) {
   const createBusinessHours = useMutation(
     api.businessHours.createBusinessHours,
   );
@@ -63,13 +61,12 @@ export function BusinessHoursForm({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const data = values.businessHours.map((businessHour) => ({
       ...businessHour,
-      dayOfWeek: businessHour.dayOfWeek.getDay(),
+      dayOfWeek: businessHour.dayOfWeek.getDay() as 0 | 1 | 2 | 3 | 4 | 5 | 6,
     }));
-    await createBusinessHours({ businessHours: data }).then(
-      (data) => {
-        onSuccess(data);
-      },
-    );
+
+    await createBusinessHours({ businessHours: data }).then((data) => {
+      onSuccess(data);
+    });
   };
 
   return (
@@ -110,7 +107,7 @@ export function BusinessHoursForm({
                 control={form.control}
                 name={`businessHours.${index}.timeClose`}
                 render={({ field }) => (
-                  <div className="flex gap-2">
+                  <div className='flex gap-2'>
                     <FormLabel htmlFor={`businessHours.${index}.timeClose`}>
                       Close
                     </FormLabel>

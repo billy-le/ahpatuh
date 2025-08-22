@@ -12,21 +12,34 @@ export const Route = createFileRoute('/_authenticated/dashboard')({
 
 function Dashboard() {
   const router = useRouter();
-  const { data: user } = useQuery(convexQuery(api.users.getUser, {}));
-  const { data: businessDetails, isPending, error } = useQuery(convexQuery(api.business.getBusinessDetails, {}))
+  const {
+    data: user,
+    isPending: isUserPending,
+    error: userError,
+  } = useQuery(convexQuery(api.users.getUser, {}));
+  const {
+    data: businessDetails,
+    isPending: isBusinessDetailsPending,
+    error: businessDetailsError,
+  } = useQuery(convexQuery(api.business.getBusinessDetails, {}));
+
+  const error = userError || businessDetailsError;
+  const isPending = isUserPending || isBusinessDetailsPending;
 
   function onSuccess() {
-    router.invalidate()
+    router.invalidate();
   }
 
   if (isPending) {
-    return <Layout className='flex items-center justify-center'>
-      <Loader />
-    </Layout>
+    return (
+      <Layout className='flex items-center justify-center'>
+        <Loader />
+      </Layout>
+    );
   }
 
   if (error && error instanceof ConvexError) {
-    return <Layout>{error.data.message}</Layout>
+    return <Layout>{error.data.message}</Layout>;
   }
 
   return (

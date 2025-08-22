@@ -12,12 +12,14 @@ export const Route = createFileRoute('/_authenticated')({
 });
 
 function AuthenticatedRoute() {
-  return <>
-    <AuthLoading >
-      <Loader />
-    </AuthLoading>
-    <Authenticated>
-      <Outlet />
-    </Authenticated>
-  </>
+  return (
+    <>
+      <AuthLoading>
+        <Loader />
+      </AuthLoading>
+      <Authenticated>
+        <Outlet />
+      </Authenticated>
+    </>
+  );
 }

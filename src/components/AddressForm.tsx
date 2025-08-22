@@ -29,7 +29,7 @@ const formSchema = z.object({
 });
 
 export function AddressForm({ onSuccess }: AddressFormProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       street1: '',
@@ -39,6 +39,7 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
       postalCode: '',
     },
   });
+
   const createAddress = useMutation(api.address.createAddress);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {

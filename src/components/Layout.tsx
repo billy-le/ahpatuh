@@ -9,28 +9,28 @@ import { authClient } from '~/lib/auth-client';
 import { cx } from '~/lib/cva';
 
 interface LayoutProps extends React.PropsWithChildren {
-  className?: string
+  className?: string;
 }
 
 const navigation: Array<
   Pick<LinkComponentProps, 'to'> & { name: string; icon: React.ReactElement }
 > = [
-    {
-      to: '/dashboard',
-      name: 'Dashboard',
-      icon: <LayoutDashboard />,
-    },
-    {
-      to: '/calendar',
-      name: 'Calendar',
-      icon: <Calendar />,
-    },
-    {
-      to: '/employees',
-      name: 'Employees',
-      icon: <Users />,
-    },
-  ];
+  {
+    to: '/dashboard',
+    name: 'Dashboard',
+    icon: <LayoutDashboard />,
+  },
+  {
+    to: '/calendar',
+    name: 'Calendar',
+    icon: <Calendar />,
+  },
+  {
+    to: '/employees',
+    name: 'Employees',
+    icon: <Users />,
+  },
+];
 
 export function Layout({ children, className }: LayoutProps) {
   const router = useRouter();
@@ -86,7 +86,10 @@ export function Layout({ children, className }: LayoutProps) {
           </li>
         </ul>
       </section>
-      <main className={cx('m-6 py-4 px-6 rounded-md grow bg-white', className)}> {children}</main>
-    </div >
+      <main className={cx('m-6 py-4 px-6 rounded-md grow bg-white', className)}>
+        {' '}
+        {children}
+      </main>
+    </div>
   );
 }

@@ -22,7 +22,7 @@ interface MonthCalendarProps {
   onWheelChange?: React.WheelEventHandler;
   blockPastDatesFrom?: Date;
   blockFutureDatesFrom?: Date;
-  className?: string,
+  className?: string;
   lang: string;
 }
 const week = eachDayOfInterval({
@@ -62,7 +62,9 @@ export const MonthCalender = ({
   const calendarDays = getCalendarDays(date);
 
   return (
-    <div className={cx('space-y-2 px-6 flex flex-col justify-center', className)}>
+    <div
+      className={cx('space-y-2 px-6 flex flex-col justify-center', className)}
+    >
       <div className='flex justify-center items-center gap-2'>
         <button
           className='size-6 grid place-items-center border border-gray-500 rounded'
@@ -122,15 +124,16 @@ export const MonthCalender = ({
                   'text-2xl font-bold relative grid place-items-center h-20 w-20 rounded-full mx-auto text-gray-400',
                   (beforeDate || afterDate) && 'text-gray-400',
                   !beforeDate &&
-                  !afterDate &&
-                  'bg-blue-100 text-blue-600 hover:bg-blue-200',
+                    !afterDate &&
+                    'bg-blue-100 text-blue-600 hover:bg-blue-200',
                   isSameDay(day, date) &&
-                  'bg-blue-600 text-white hover:bg-blue-600',
+                    'bg-blue-600 text-white hover:bg-blue-600',
                   isSameMonth(addMonths(date, 1), day) &&
-                  !afterDate &&
-                  'bg-gray-300 text-gray-600 hover:bg-gray-400',
-                  !beforeDate && isBefore(day, startOfMonth(date)) && 'bg-gray-300 text-gray-600 hover:bg-gray-400 hi',
-
+                    !afterDate &&
+                    'bg-gray-300 text-gray-600 hover:bg-gray-400',
+                  !beforeDate &&
+                    isBefore(day, startOfMonth(date)) &&
+                    'bg-gray-300 text-gray-600 hover:bg-gray-400 hi',
                 )}
                 data-date={day.toISOString()}
                 onClick={() => {
@@ -143,7 +146,7 @@ export const MonthCalender = ({
                 <span
                   className={cx(
                     isSameDay(new Date(), day) &&
-                    'relative after:block after:h-3 after:w-3 after:rounded-full after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2 after:bg-blue-600',
+                      'relative after:block after:h-3 after:w-3 after:rounded-full after:absolute after:-bottom-4 after:left-1/2 after:-translate-x-1/2 after:bg-blue-600',
                   )}
                 >
                   {Intl.DateTimeFormat(lang, { day: 'numeric' }).format(day)}

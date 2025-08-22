@@ -21,7 +21,7 @@ export const Calendar = ({
   const goToPreviousMonth = () => {
     const date = subMonths(currentDay, 1);
     if (blockPastDatesFrom && isBefore(date, blockPastDatesFrom)) {
-      setCurrentDay(new Date);
+      setCurrentDay(new Date());
       return;
     }
     setCurrentDay(date);

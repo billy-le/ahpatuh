@@ -17,10 +17,10 @@ function Login() {
       className='mx-auto max-w-96 w-full text-center border border-gray-300/60 rounded-2xl px-8 bg-white'
       onSubmit={async (e) => {
         e.preventDefault();
-        const form = new FormData(e.target);
+        const form = new FormData(e.target as HTMLFormElement);
         await authClient.signIn.email({
-          email: form.get('email'),
-          password: form.get('password'),
+          email: form.get('email') as string,
+          password: form.get('password') as string,
           callbackURL: '/dashboard',
           rememberMe: true,
         });

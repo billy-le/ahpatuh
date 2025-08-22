@@ -21,9 +21,9 @@ function SignUp() {
     const form = new FormData(e.target as HTMLFormElement);
     await authClient.signUp.email(
       {
-        name: form.get('name'),
-        email: form.get('email'),
-        password: form.get('password'),
+        name: form.get('name') as string,
+        email: form.get('email') as string,
+        password: form.get('password') as string,
       },
       {
         onSuccess: () => {
