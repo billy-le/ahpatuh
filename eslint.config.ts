@@ -13,4 +13,11 @@ export default defineConfig([
   },
   tseslint.configs.recommended,
   pluginReact.configs.flat.recommended,
+  {
+    rules: {
+      // Disable React recommended rules
+      'react/react-in-jsx-scope': 'off',
+      'react/no-unescaped-entities': 'off',
+    },
+  },
 ]);
