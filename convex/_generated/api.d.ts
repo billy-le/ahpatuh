@@ -8,22 +8,23 @@
  * @module
  */
 
-import type * as address from "../address.js";
-import type * as auth from "../auth.js";
-import type * as business from "../business.js";
-import type * as businessHours from "../businessHours.js";
-import type * as employees from "../employees.js";
-import type * as http from "../http.js";
-import type * as languages from "../languages.js";
-import type * as migrationts from "../migrationts.js";
-import type * as roles from "../roles.js";
-import type * as users from "../users.js";
+import type * as address from '../address.js';
+import type * as auth from '../auth.js';
+import type * as business from '../business.js';
+import type * as businessHours from '../businessHours.js';
+import type * as employees from '../employees.js';
+import type * as http from '../http.js';
+import type * as languages from '../languages.js';
+import type * as migrationts from '../migrationts.js';
+import type * as roles from '../roles.js';
+import type * as shifts from '../shifts.js';
+import type * as users from '../users.js';
 
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
-} from "convex/server";
+} from 'convex/server';
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -43,25 +44,26 @@ declare const fullApi: ApiFromModules<{
   languages: typeof languages;
   migrationts: typeof migrationts;
   roles: typeof roles;
+  shifts: typeof shifts;
   users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
 export declare const api: FilterApi<
   typeof fullApiWithMounts,
-  FunctionReference<any, "public">
+  FunctionReference<any, 'public'>
 >;
 export declare const internal: FilterApi<
   typeof fullApiWithMounts,
-  FunctionReference<any, "internal">
+  FunctionReference<any, 'internal'>
 >;
 
 export declare const components: {
   migrations: {
     lib: {
       cancel: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         { name: string },
         {
           batchSize?: number;
@@ -73,12 +75,12 @@ export declare const components: {
           name: string;
           next?: Array<string>;
           processed: number;
-          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
+          state: 'inProgress' | 'success' | 'failed' | 'canceled' | 'unknown';
         }
       >;
       cancelAll: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         { sinceTs?: number },
         Array<{
           batchSize?: number;
@@ -90,18 +92,18 @@ export declare const components: {
           name: string;
           next?: Array<string>;
           processed: number;
-          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
+          state: 'inProgress' | 'success' | 'failed' | 'canceled' | 'unknown';
         }>
       >;
       clearAll: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         { before?: number },
         null
       >;
       getStatus: FunctionReference<
-        "query",
-        "internal",
+        'query',
+        'internal',
         { limit?: number; names?: Array<string> },
         Array<{
           batchSize?: number;
@@ -113,12 +115,12 @@ export declare const components: {
           name: string;
           next?: Array<string>;
           processed: number;
-          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
+          state: 'inProgress' | 'success' | 'failed' | 'canceled' | 'unknown';
         }>
       >;
       migrate: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         {
           batchSize?: number;
           cursor?: string | null;
@@ -137,27 +139,27 @@ export declare const components: {
           name: string;
           next?: Array<string>;
           processed: number;
-          state: "inProgress" | "success" | "failed" | "canceled" | "unknown";
+          state: 'inProgress' | 'success' | 'failed' | 'canceled' | 'unknown';
         }
       >;
     };
   };
   betterAuth: {
     adapterTest: {
-      count: FunctionReference<"query", "internal", any, any>;
-      create: FunctionReference<"mutation", "internal", any, any>;
-      delete: FunctionReference<"mutation", "internal", any, any>;
-      deleteMany: FunctionReference<"mutation", "internal", any, any>;
-      findMany: FunctionReference<"query", "internal", any, any>;
-      findOne: FunctionReference<"query", "internal", any, any>;
-      isAuthenticated: FunctionReference<"query", "internal", {}, any>;
-      update: FunctionReference<"mutation", "internal", any, any>;
-      updateMany: FunctionReference<"mutation", "internal", any, any>;
+      count: FunctionReference<'query', 'internal', any, any>;
+      create: FunctionReference<'mutation', 'internal', any, any>;
+      delete: FunctionReference<'mutation', 'internal', any, any>;
+      deleteMany: FunctionReference<'mutation', 'internal', any, any>;
+      findMany: FunctionReference<'query', 'internal', any, any>;
+      findOne: FunctionReference<'query', 'internal', any, any>;
+      isAuthenticated: FunctionReference<'query', 'internal', {}, any>;
+      update: FunctionReference<'mutation', 'internal', any, any>;
+      updateMany: FunctionReference<'mutation', 'internal', any, any>;
     };
     lib: {
       create: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         {
           input:
             | {
@@ -182,7 +184,7 @@ export declare const components: {
                   userId?: null | string;
                   username?: null | string;
                 };
-                model: "user";
+                model: 'user';
               }
             | {
                 data: {
@@ -197,7 +199,7 @@ export declare const components: {
                   userAgent?: null | string;
                   userId: string;
                 };
-                model: "session";
+                model: 'session';
               }
             | {
                 data: {
@@ -214,7 +216,7 @@ export declare const components: {
                   updatedAt: number;
                   userId: string;
                 };
-                model: "account";
+                model: 'account';
               }
             | {
                 data: {
@@ -224,11 +226,11 @@ export declare const components: {
                   updatedAt?: null | number;
                   value: string;
                 };
-                model: "verification";
+                model: 'verification';
               }
             | {
                 data: { backupCodes: string; secret: string; userId: string };
-                model: "twoFactor";
+                model: 'twoFactor';
               }
             | {
                 data: {
@@ -243,7 +245,7 @@ export declare const components: {
                   transports?: null | string;
                   userId: string;
                 };
-                model: "passkey";
+                model: 'passkey';
               }
             | {
                 data: {
@@ -268,7 +270,7 @@ export declare const components: {
                   updatedAt: number;
                   userId: string;
                 };
-                model: "apikey";
+                model: 'apikey';
               }
             | {
                 data: {
@@ -284,7 +286,7 @@ export declare const components: {
                   updatedAt?: null | number;
                   userId?: null | string;
                 };
-                model: "oauthApplication";
+                model: 'oauthApplication';
               }
             | {
                 data: {
@@ -298,7 +300,7 @@ export declare const components: {
                   updatedAt?: null | number;
                   userId?: null | string;
                 };
-                model: "oauthAccessToken";
+                model: 'oauthAccessToken';
               }
             | {
                 data: {
@@ -309,7 +311,7 @@ export declare const components: {
                   updatedAt?: null | number;
                   userId?: null | string;
                 };
-                model: "oauthConsent";
+                model: 'oauthConsent';
               }
             | {
                 data: {
@@ -319,7 +321,7 @@ export declare const components: {
                   name: string;
                   slug?: null | string;
                 };
-                model: "organization";
+                model: 'organization';
               }
             | {
                 data: {
@@ -328,7 +330,7 @@ export declare const components: {
                   role: string;
                   userId: string;
                 };
-                model: "member";
+                model: 'member';
               }
             | {
                 data: {
@@ -340,7 +342,7 @@ export declare const components: {
                   status: string;
                   teamId?: null | string;
                 };
-                model: "invitation";
+                model: 'invitation';
               }
             | {
                 data: {
@@ -349,7 +351,7 @@ export declare const components: {
                   organizationId: string;
                   updatedAt?: null | number;
                 };
-                model: "team";
+                model: 'team';
               }
             | {
                 data: {
@@ -357,7 +359,7 @@ export declare const components: {
                   teamId: string;
                   userId: string;
                 };
-                model: "teamMember";
+                model: 'teamMember';
               }
             | {
                 data: {
@@ -369,7 +371,7 @@ export declare const components: {
                   samlConfig?: null | string;
                   userId?: null | string;
                 };
-                model: "ssoProvider";
+                model: 'ssoProvider';
               }
             | {
                 data: {
@@ -377,7 +379,7 @@ export declare const components: {
                   privateKey: string;
                   publicKey: string;
                 };
-                model: "jwks";
+                model: 'jwks';
               }
             | {
                 data: {
@@ -391,7 +393,7 @@ export declare const components: {
                   stripeCustomerId?: null | string;
                   stripeSubscriptionId?: null | string;
                 };
-                model: "subscription";
+                model: 'subscription';
               }
             | {
                 data: {
@@ -401,7 +403,7 @@ export declare const components: {
                   isPrimary?: null | boolean;
                   userId: string;
                 };
-                model: "walletAddress";
+                model: 'walletAddress';
               }
             | {
                 data: {
@@ -409,14 +411,14 @@ export declare const components: {
                   key?: null | string;
                   lastRequest?: null | number;
                 };
-                model: "rateLimit";
+                model: 'rateLimit';
               };
         },
         any
       >;
       deleteMany: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         {
           limit?: number;
           model: string;
@@ -430,22 +432,22 @@ export declare const components: {
             numItems: number;
           };
           select?: Array<string>;
-          sortBy?: { direction: "asc" | "desc"; field: string };
+          sortBy?: { direction: 'asc' | 'desc'; field: string };
           unique?: boolean;
           where?: Array<{
-            connector?: "AND" | "OR";
+            connector?: 'AND' | 'OR';
             field: string;
             operator?:
-              | "lt"
-              | "lte"
-              | "gt"
-              | "gte"
-              | "eq"
-              | "in"
-              | "ne"
-              | "contains"
-              | "starts_with"
-              | "ends_with";
+              | 'lt'
+              | 'lte'
+              | 'gt'
+              | 'gte'
+              | 'eq'
+              | 'in'
+              | 'ne'
+              | 'contains'
+              | 'starts_with'
+              | 'ends_with';
             value:
               | string
               | number
@@ -458,29 +460,29 @@ export declare const components: {
         any
       >;
       deleteOne: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         {
           limit?: number;
           model: string;
           offset?: number;
           select?: Array<string>;
-          sortBy?: { direction: "asc" | "desc"; field: string };
+          sortBy?: { direction: 'asc' | 'desc'; field: string };
           unique?: boolean;
           where?: Array<{
-            connector?: "AND" | "OR";
+            connector?: 'AND' | 'OR';
             field: string;
             operator?:
-              | "lt"
-              | "lte"
-              | "gt"
-              | "gte"
-              | "eq"
-              | "in"
-              | "ne"
-              | "contains"
-              | "starts_with"
-              | "ends_with";
+              | 'lt'
+              | 'lte'
+              | 'gt'
+              | 'gte'
+              | 'eq'
+              | 'in'
+              | 'ne'
+              | 'contains'
+              | 'starts_with'
+              | 'ends_with';
             value:
               | string
               | number
@@ -493,8 +495,8 @@ export declare const components: {
         any
       >;
       findMany: FunctionReference<
-        "query",
-        "internal",
+        'query',
+        'internal',
         {
           limit?: number;
           model: string;
@@ -508,22 +510,22 @@ export declare const components: {
             numItems: number;
           };
           select?: Array<string>;
-          sortBy?: { direction: "asc" | "desc"; field: string };
+          sortBy?: { direction: 'asc' | 'desc'; field: string };
           unique?: boolean;
           where?: Array<{
-            connector?: "AND" | "OR";
+            connector?: 'AND' | 'OR';
             field: string;
             operator?:
-              | "lt"
-              | "lte"
-              | "gt"
-              | "gte"
-              | "eq"
-              | "in"
-              | "ne"
-              | "contains"
-              | "starts_with"
-              | "ends_with";
+              | 'lt'
+              | 'lte'
+              | 'gt'
+              | 'gte'
+              | 'eq'
+              | 'in'
+              | 'ne'
+              | 'contains'
+              | 'starts_with'
+              | 'ends_with';
             value:
               | string
               | number
@@ -536,29 +538,29 @@ export declare const components: {
         any
       >;
       findOne: FunctionReference<
-        "query",
-        "internal",
+        'query',
+        'internal',
         {
           limit?: number;
           model: string;
           offset?: number;
           select?: Array<string>;
-          sortBy?: { direction: "asc" | "desc"; field: string };
+          sortBy?: { direction: 'asc' | 'desc'; field: string };
           unique?: boolean;
           where?: Array<{
-            connector?: "AND" | "OR";
+            connector?: 'AND' | 'OR';
             field: string;
             operator?:
-              | "lt"
-              | "lte"
-              | "gt"
-              | "gte"
-              | "eq"
-              | "in"
-              | "ne"
-              | "contains"
-              | "starts_with"
-              | "ends_with";
+              | 'lt'
+              | 'lte'
+              | 'gt'
+              | 'gte'
+              | 'eq'
+              | 'in'
+              | 'ne'
+              | 'contains'
+              | 'starts_with'
+              | 'ends_with';
             value:
               | string
               | number
@@ -570,15 +572,15 @@ export declare const components: {
         },
         any
       >;
-      getCurrentSession: FunctionReference<"query", "internal", {}, any>;
+      getCurrentSession: FunctionReference<'query', 'internal', {}, any>;
       updateMany: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         {
           input:
             | {
                 limit?: number;
-                model: "user";
+                model: 'user';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -589,7 +591,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   banExpires?: null | number;
@@ -613,19 +615,19 @@ export declare const components: {
                   username?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -637,7 +639,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "session";
+                model: 'session';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -648,7 +650,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   activeOrganizationId?: null | string;
@@ -663,19 +665,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -687,7 +689,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "account";
+                model: 'account';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -698,7 +700,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   accessToken?: null | string;
@@ -715,19 +717,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -739,7 +741,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "verification";
+                model: 'verification';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -750,7 +752,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   createdAt?: null | number;
@@ -760,19 +762,19 @@ export declare const components: {
                   value?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -784,7 +786,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "twoFactor";
+                model: 'twoFactor';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -795,7 +797,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   backupCodes?: string;
@@ -803,19 +805,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -827,7 +829,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "passkey";
+                model: 'passkey';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -838,7 +840,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   aaguid?: null | string;
@@ -853,19 +855,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -877,7 +879,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "apikey";
+                model: 'apikey';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -888,7 +890,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   createdAt?: number;
@@ -913,19 +915,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -937,7 +939,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "oauthApplication";
+                model: 'oauthApplication';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -948,7 +950,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   clientId?: null | string;
@@ -964,19 +966,19 @@ export declare const components: {
                   userId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -988,7 +990,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "oauthAccessToken";
+                model: 'oauthAccessToken';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -999,7 +1001,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   accessToken?: null | string;
@@ -1013,19 +1015,19 @@ export declare const components: {
                   userId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1037,7 +1039,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "oauthConsent";
+                model: 'oauthConsent';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1048,7 +1050,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   clientId?: null | string;
@@ -1059,19 +1061,19 @@ export declare const components: {
                   userId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1083,7 +1085,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "organization";
+                model: 'organization';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1094,7 +1096,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   createdAt?: number;
@@ -1104,19 +1106,19 @@ export declare const components: {
                   slug?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1128,7 +1130,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "member";
+                model: 'member';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1139,7 +1141,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   createdAt?: number;
@@ -1148,19 +1150,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1172,7 +1174,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "invitation";
+                model: 'invitation';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1183,7 +1185,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   email?: string;
@@ -1195,19 +1197,19 @@ export declare const components: {
                   teamId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1219,7 +1221,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "team";
+                model: 'team';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1230,7 +1232,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   createdAt?: number;
@@ -1239,19 +1241,19 @@ export declare const components: {
                   updatedAt?: null | number;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1263,7 +1265,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "teamMember";
+                model: 'teamMember';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1274,7 +1276,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   createdAt?: null | number;
@@ -1282,19 +1284,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1306,7 +1308,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "ssoProvider";
+                model: 'ssoProvider';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1317,7 +1319,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   domain?: string;
@@ -1329,19 +1331,19 @@ export declare const components: {
                   userId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1353,7 +1355,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "jwks";
+                model: 'jwks';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1364,7 +1366,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   createdAt?: number;
@@ -1372,19 +1374,19 @@ export declare const components: {
                   publicKey?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1396,7 +1398,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "subscription";
+                model: 'subscription';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1407,7 +1409,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   cancelAtPeriodEnd?: null | boolean;
@@ -1421,19 +1423,19 @@ export declare const components: {
                   stripeSubscriptionId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1445,7 +1447,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "walletAddress";
+                model: 'walletAddress';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1456,7 +1458,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   address?: string;
@@ -1466,19 +1468,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1490,7 +1492,7 @@ export declare const components: {
               }
             | {
                 limit?: number;
-                model: "rateLimit";
+                model: 'rateLimit';
                 offset?: number;
                 paginationOpts: {
                   cursor: string | null;
@@ -1501,7 +1503,7 @@ export declare const components: {
                   numItems: number;
                 };
                 select?: Array<string>;
-                sortBy?: { direction: "asc" | "desc"; field: string };
+                sortBy?: { direction: 'asc' | 'desc'; field: string };
                 unique?: boolean;
                 update: {
                   count?: null | number;
@@ -1509,19 +1511,19 @@ export declare const components: {
                   lastRequest?: null | number;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1535,12 +1537,12 @@ export declare const components: {
         any
       >;
       updateOne: FunctionReference<
-        "mutation",
-        "internal",
+        'mutation',
+        'internal',
         {
           input:
             | {
-                model: "user";
+                model: 'user';
                 update: {
                   banExpires?: null | number;
                   banReason?: null | string;
@@ -1563,19 +1565,19 @@ export declare const components: {
                   username?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1586,7 +1588,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "session";
+                model: 'session';
                 update: {
                   activeOrganizationId?: null | string;
                   activeTeamId?: null | string;
@@ -1600,19 +1602,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1623,7 +1625,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "account";
+                model: 'account';
                 update: {
                   accessToken?: null | string;
                   accessTokenExpiresAt?: null | number;
@@ -1639,19 +1641,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1662,7 +1664,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "verification";
+                model: 'verification';
                 update: {
                   createdAt?: null | number;
                   expiresAt?: number;
@@ -1671,19 +1673,19 @@ export declare const components: {
                   value?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1694,26 +1696,26 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "twoFactor";
+                model: 'twoFactor';
                 update: {
                   backupCodes?: string;
                   secret?: string;
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1724,7 +1726,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "passkey";
+                model: 'passkey';
                 update: {
                   aaguid?: null | string;
                   backedUp?: boolean;
@@ -1738,19 +1740,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1761,7 +1763,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "apikey";
+                model: 'apikey';
                 update: {
                   createdAt?: number;
                   enabled?: null | boolean;
@@ -1785,19 +1787,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1808,7 +1810,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "oauthApplication";
+                model: 'oauthApplication';
                 update: {
                   clientId?: null | string;
                   clientSecret?: null | string;
@@ -1823,19 +1825,19 @@ export declare const components: {
                   userId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1846,7 +1848,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "oauthAccessToken";
+                model: 'oauthAccessToken';
                 update: {
                   accessToken?: null | string;
                   accessTokenExpiresAt?: null | number;
@@ -1859,19 +1861,19 @@ export declare const components: {
                   userId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1882,7 +1884,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "oauthConsent";
+                model: 'oauthConsent';
                 update: {
                   clientId?: null | string;
                   consentGiven?: null | boolean;
@@ -1892,19 +1894,19 @@ export declare const components: {
                   userId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1915,7 +1917,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "organization";
+                model: 'organization';
                 update: {
                   createdAt?: number;
                   logo?: null | string;
@@ -1924,19 +1926,19 @@ export declare const components: {
                   slug?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1947,7 +1949,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "member";
+                model: 'member';
                 update: {
                   createdAt?: number;
                   organizationId?: string;
@@ -1955,19 +1957,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -1978,7 +1980,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "invitation";
+                model: 'invitation';
                 update: {
                   email?: string;
                   expiresAt?: number;
@@ -1989,19 +1991,19 @@ export declare const components: {
                   teamId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -2012,7 +2014,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "team";
+                model: 'team';
                 update: {
                   createdAt?: number;
                   name?: string;
@@ -2020,19 +2022,19 @@ export declare const components: {
                   updatedAt?: null | number;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -2043,26 +2045,26 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "teamMember";
+                model: 'teamMember';
                 update: {
                   createdAt?: null | number;
                   teamId?: string;
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -2073,7 +2075,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "ssoProvider";
+                model: 'ssoProvider';
                 update: {
                   domain?: string;
                   issuer?: string;
@@ -2084,19 +2086,19 @@ export declare const components: {
                   userId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -2107,26 +2109,26 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "jwks";
+                model: 'jwks';
                 update: {
                   createdAt?: number;
                   privateKey?: string;
                   publicKey?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -2137,7 +2139,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "subscription";
+                model: 'subscription';
                 update: {
                   cancelAtPeriodEnd?: null | boolean;
                   periodEnd?: null | number;
@@ -2150,19 +2152,19 @@ export declare const components: {
                   stripeSubscriptionId?: null | string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -2173,7 +2175,7 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "walletAddress";
+                model: 'walletAddress';
                 update: {
                   address?: string;
                   chainId?: number;
@@ -2182,19 +2184,19 @@ export declare const components: {
                   userId?: string;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number
@@ -2205,26 +2207,26 @@ export declare const components: {
                 }>;
               }
             | {
-                model: "rateLimit";
+                model: 'rateLimit';
                 update: {
                   count?: null | number;
                   key?: null | string;
                   lastRequest?: null | number;
                 };
                 where?: Array<{
-                  connector?: "AND" | "OR";
+                  connector?: 'AND' | 'OR';
                   field: string;
                   operator?:
-                    | "lt"
-                    | "lte"
-                    | "gt"
-                    | "gte"
-                    | "eq"
-                    | "in"
-                    | "ne"
-                    | "contains"
-                    | "starts_with"
-                    | "ends_with";
+                    | 'lt'
+                    | 'lte'
+                    | 'gt'
+                    | 'gte'
+                    | 'eq'
+                    | 'in'
+                    | 'ne'
+                    | 'contains'
+                    | 'starts_with'
+                    | 'ends_with';
                   value:
                     | string
                     | number

@@ -55,12 +55,10 @@ export const employee = {
   isBookable: v.optional(v.boolean()),
   businessId: v.id('businesses'),
   positionId: v.optional(v.id('roles')),
-  shiftIds: v.optional(v.array(v.id('shift'))),
   updatedAt: v.string(),
 };
 
 export const shift = {
-  name: v.string(),
   day: v.union(
     v.literal(0), // Sunday
     v.literal(1),
@@ -70,9 +68,13 @@ export const shift = {
     v.literal(5),
     v.literal(6),
   ),
-  startTime: v.string(),
-  endTime: v.string(),
-  durationInMinutes: v.int64(),
+  startTime: v.optional(v.string()),
+  endTime: v.optional(v.string()),
+  durationInMinutes: v.optional(v.number()),
+  numOfBreaks: v.optional(v.number()),
+  breakDurationInMinutes: v.optional(v.number()),
+  dayOff: v.boolean(),
+  employeeId: v.id('employees'),
   businessId: v.id('businesses'),
   updatedAt: v.string(),
 };
@@ -144,7 +146,9 @@ export default defineSchema({
     .index('unique_position', ['name', 'businessId']),
   employees: defineTable(employee).index('by_businessId', ['businessId']),
   languages: defineTable(language).index('language', ['value']),
-  shifts: defineTable(shift).index('by_businessId', ['businessId']),
+  shifts: defineTable(shift)
+    .index('by_businessId', ['businessId'])
+    .index('by_employeeId', ['employeeId']),
   nationalHolidays: defineTable(nationalHoliday).index('by_date', ['date']),
   employeeUnavailabilities: defineTable(employeeUnavailability).index(
     'by_employeeId',
