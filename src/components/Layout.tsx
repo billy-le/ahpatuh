@@ -35,14 +35,16 @@ const navigation: Array<
 export function Layout({ children, className }: LayoutProps) {
   const router = useRouter();
   return (
-    <div className='flex min-h-dvh bg-neutral-100'>
-      <section className='py-10 flex flex-col justify-between shrink-0 min-w-40 border-r border-slate-300'>
+    <div className='flex min-h-dvh bg-apt-hot-pink'>
+      <section className='py-10 flex flex-col justify-between shrink-0 min-w-40 border-r-2 border-black'>
         <nav className='px-4'>
           <ul className='space-y-4'>
             {navigation.map(({ name, to, icon }) => (
-              <li className='rounded hover:bg-yellow-400/20' key={name}>
+              <li className='rounded-md hover:bg-apt-secondary' key={name}>
                 <Link
-                  activeProps={{ className: 'block bg-yellow-300 rounded-md' }}
+                  activeProps={{
+                    className: 'block bg-apt-secondary rounded-md',
+                  }}
                   to={to}
                 >
                   <div className='flex items-center gap-4 py-2 px-4'>
@@ -55,10 +57,10 @@ export function Layout({ children, className }: LayoutProps) {
           </ul>
         </nav>
         <ul className='px-4 space-y-4'>
-          <li className='rounded hover:bg-yellow-400/20'>
+          <li className='rounded-md hover:bg-apt-secondary'>
             <Link
               activeProps={{
-                className: 'block bg-yellow-300 rounded-md',
+                className: 'block bg-apt-secondary rounded-md',
               }}
               to='/settings'
             >

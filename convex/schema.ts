@@ -82,13 +82,16 @@ export const shift = {
 export const nationalHoliday = {
   name: v.string(),
   date: v.string(),
+  updatedAt: v.string(),
 };
 
 export const employeeUnavailability = {
   employeeId: v.id('employees'),
+  businessId: v.id('businesses'),
   startDate: v.string(),
   endDate: v.string(),
   reason: v.optional(v.string()),
+  updatedAt: v.string(),
 };
 
 export const service = {
@@ -150,10 +153,11 @@ export default defineSchema({
     .index('by_businessId', ['businessId'])
     .index('by_employeeId', ['employeeId']),
   nationalHolidays: defineTable(nationalHoliday).index('by_date', ['date']),
-  employeeUnavailabilities: defineTable(employeeUnavailability).index(
-    'by_employeeId',
-    ['employeeId'],
-  ),
+  employeeUnavailabilities: defineTable(employeeUnavailability)
+    .index('by_employee_date_range', ['employeeId', 'startDate', 'endDate'])
+    .index('by_employee_end_date', ['employeeId', 'endDate'])
+    .index('by_business_id', ['businessId'])
+    .index('by_employee_id', ['employeeId']),
   services: defineTable(service).index('by_businessId', ['businessId']),
   customers: defineTable(customer).index('by_businessId', ['businessId']),
   bookings: defineTable(booking).index('by_businessId', ['businessId']),

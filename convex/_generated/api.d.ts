@@ -12,6 +12,7 @@ import type * as address from '../address.js';
 import type * as auth from '../auth.js';
 import type * as business from '../business.js';
 import type * as businessHours from '../businessHours.js';
+import type * as employeeUnavailability from '../employeeUnavailability.js';
 import type * as employees from '../employees.js';
 import type * as http from '../http.js';
 import type * as languages from '../languages.js';
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   business: typeof business;
   businessHours: typeof businessHours;
+  employeeUnavailability: typeof employeeUnavailability;
   employees: typeof employees;
   http: typeof http;
   languages: typeof languages;

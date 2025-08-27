@@ -7,6 +7,9 @@ import {
   Pencil,
   Trash2,
   Camera,
+  Calendar,
+  List,
+  Trash,
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
@@ -36,9 +39,59 @@ import {
 } from '~/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { useMutation } from 'convex/react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { EmployeeDetailsForm } from './EmployeeDetailsForm';
 import { EmployeePositionAndShiftsForm } from './EmployeePositionAndShiftsForm';
+import { EmployeeAvailabilityForm } from './EmployeeAvailabilityForm';
+import { cx } from '~/lib/cva';
+import { format } from 'date-fns';
+
+export const employeeUnavailabitiesColumns: ColumnDef<
+  FunctionReturnType<
+    typeof api.employeeUnavailability.getEmployeeUnavailabilities
+  >[number]
+>[] = [
+  {
+    header: 'Dates',
+    cell: ({ row: { original } }) => (
+      <div className='flex items-center gap-4'>
+        {format(original.startDate, 'MM/dd/yyyy')} -{' '}
+        {format(original.endDate, 'MM/dd/yyyy')}
+      </div>
+    ),
+  },
+  {
+    header: 'Reason',
+    cell: ({
+      row: {
+        original: { reason },
+      },
+    }) => <div>{reason}</div>,
+  },
+  {
+    header: 'Actions',
+    cell: ({ row: { original } }) => {
+      const deleteUnavailability = useMutation(
+        api.employeeUnavailability.deleteUnavailability,
+      );
+      return (
+        <div className='flex items-center gap-4'>
+          <Button
+            size='icon'
+            onClick={() => {
+              deleteUnavailability({
+                employeeId: original.employeeId,
+                unavailabilityId: original._id,
+              });
+            }}
+          >
+            <Trash />
+          </Button>
+        </div>
+      );
+    },
+  },
+];
 
 export const employeeColumns: ColumnDef<
   FunctionReturnType<typeof api.employees.getEmployees>[number]
@@ -88,9 +141,14 @@ export const employeeColumns: ColumnDef<
     cell: ({ row: { original: employee } }) => {
       const deleteEmployee = useMutation(api.employees.deleteEmployee);
       const [formOpen, setFormOpen] = useState(false);
+      const [availabilityView, setAvailablityView] = useState<
+        'calendar' | 'list'
+      >('calendar');
+      const availabilityRef = useRef<HTMLButtonElement | null>(null);
+      const availabilityViewRef = useRef<HTMLDivElement | null>(null);
 
       return (
-        <Dialog open={formOpen}>
+        <Dialog open={formOpen} onOpenChange={setFormOpen}>
           <AlertDialog>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -100,12 +158,7 @@ export const employeeColumns: ColumnDef<
               </DropdownMenuTrigger>
               <DropdownMenuContent side='bottom' align='start' autoFocus>
                 <DropdownMenuItem>
-                  <DialogTrigger
-                    className='font-medium w-full flex justify-between items-center'
-                    onClick={() => {
-                      setFormOpen(true);
-                    }}
-                  >
+                  <DialogTrigger className='font-medium w-full flex justify-between items-center'>
                     <span>Edit</span>
                     <Pencil />
                   </DialogTrigger>
@@ -140,7 +193,7 @@ export const employeeColumns: ColumnDef<
             </AlertDialogContent>
           </AlertDialog>
           <DialogContent
-            className='max-w-5xl sm:max-w-5xl'
+            className='block space-y-10 max-w-5xl sm:max-w-5xl top-40 translate-y-0'
             onInteractOutside={() => {
               setFormOpen(false);
             }}
@@ -163,11 +216,54 @@ export const employeeColumns: ColumnDef<
               </div>
             </DialogHeader>
             <Tabs defaultValue='details' className='space-y-4'>
-              <TabsList>
-                <TabsTrigger value='details'>Details</TabsTrigger>
-                <TabsTrigger value='pos_shift'>Position & Shift</TabsTrigger>
-                <TabsTrigger value='availability'>Availability</TabsTrigger>
-              </TabsList>
+              <div className='flex justify-between'>
+                <TabsList
+                  onClick={(e) => {
+                    if (e.target === availabilityRef?.current) {
+                      availabilityViewRef.current?.classList.remove('hidden');
+                    } else {
+                      availabilityViewRef.current?.classList.add('hidden');
+                    }
+                  }}
+                >
+                  <TabsTrigger value='details'>Details</TabsTrigger>
+                  <TabsTrigger value='pos_shift'>Position & Shift</TabsTrigger>
+                  <TabsTrigger ref={availabilityRef} value='unavailability'>
+                    Unavailability
+                  </TabsTrigger>
+                </TabsList>
+                <div
+                  ref={availabilityViewRef}
+                  className='flex items-center hidden rounded-md bg-apt-secondary overflow-hidden'
+                >
+                  <button
+                    className={cx(
+                      'grid place-items-center h-full w-full px-2',
+                      {
+                        'bg-apt-primary': availabilityView === 'calendar',
+                      },
+                    )}
+                    onClick={() => {
+                      setAvailablityView('calendar');
+                    }}
+                  >
+                    <Calendar />
+                  </button>
+                  <button
+                    className={cx(
+                      'grid place-items-center h-full w-full px-2',
+                      {
+                        'bg-apt-primary': availabilityView === 'list',
+                      },
+                    )}
+                    onClick={() => {
+                      setAvailablityView('list');
+                    }}
+                  >
+                    <List />
+                  </button>
+                </div>
+              </div>
               <TabsContent value='details'>
                 <EmployeeDetailsForm
                   employee={employee}
@@ -182,7 +278,12 @@ export const employeeColumns: ColumnDef<
                   onSuccess={() => setFormOpen(false)}
                 />
               </TabsContent>
-              <TabsContent value='availability'>Availability</TabsContent>
+              <TabsContent value='unavailability'>
+                <EmployeeAvailabilityForm
+                  employee={employee}
+                  view={availabilityView}
+                />
+              </TabsContent>
             </Tabs>
           </DialogContent>
         </Dialog>
