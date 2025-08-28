@@ -18,6 +18,7 @@ import {
   draggable,
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
+import { Id } from 'convex/_generated/dataModel';
 
 type SingleDate = {
   date: Date;
@@ -32,7 +33,12 @@ type DateRange = {
     start?: Date;
     end?: Date;
   };
-  onDateRangeChange: (dateRange: { start: Date; end: Date }) => void;
+  onDateRangeChange: (dateRange: {
+    _id?: Id<'employeeUnavailabilities'>;
+    mode?: 'dnd';
+    start: Date;
+    end: Date;
+  }) => void;
 };
 type MonthCalendarProps = {
   onWheelChange?: React.WheelEventHandler;
@@ -41,7 +47,7 @@ type MonthCalendarProps = {
   className?: string;
   lang: string;
   unavailabilities?: {
-    _id: string;
+    _id: Id<'employeeUnavailabilities'>;
     startDate: string;
     endDate: string;
     reason?: string;
@@ -56,23 +62,28 @@ const week = eachDayOfInterval({
 const DragAndDropWrapper = ({
   day,
   unavailabilities = [],
+  headOrTail,
   onDateRangeChange,
   blockPastDatesFrom,
   blockFutureDatesFrom,
-  isUnavailability,
   children,
 }: React.PropsWithChildren<{
   day: Date;
   blockPastDatesFrom?: Date;
   blockFutureDatesFrom?: Date;
-  isUnavailability: boolean;
   unavailabilities?: {
-    _id: string;
+    _id: Id<'employeeUnavailabilities'>;
     startDate: string;
     endDate: string;
     reason?: string;
   }[];
-  onDateRangeChange: (dateRange: { start: Date; end: Date }) => void;
+  headOrTail: 'head' | 'tail' | null;
+  onDateRangeChange: (dateRange: {
+    _id?: Id<'employeeUnavailabilities'>;
+    mode?: 'dnd';
+    start: Date;
+    end: Date;
+  }) => void;
 }>) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -82,12 +93,12 @@ const DragAndDropWrapper = ({
     if (!el) return;
     return draggable({
       element: el,
-      canDrag: () => isUnavailability,
-      getInitialData: () => ({ day, isUnavailability }),
+      canDrag: () => !!headOrTail,
+      getInitialData: () => ({ day, headOrTail }),
       onDragStart: () => setDragging(true),
       onDrop: () => setDragging(false),
     });
-  }, []);
+  }, [day, headOrTail]);
 
   useEffect(() => {
     const el = ref.current;
@@ -101,25 +112,32 @@ const DragAndDropWrapper = ({
       onDragLeave: () => setIsDraggedOver(false),
       onDrop: ({ source }) => {
         const dropDate = source.data.day as Date;
+        const headOrTail = source.data.headOrTail as 'head' | 'tail' | null;
+        if (!headOrTail) return;
         const unavailability = unavailabilities.filter((u) =>
           isWithinInterval(dropDate, {
             start: u.startDate,
             end: u.endDate,
           }),
         )[0];
-        let start = new Date(unavailability.startDate);
-        let end = new Date(unavailability.endDate);
+        const start = new Date(unavailability.startDate);
+        const end = new Date(unavailability.endDate);
+        if (headOrTail === 'head') {
+          onDateRangeChange({
+            _id: unavailability._id,
+            mode: 'dnd',
+            start: day,
+            end,
+          });
+        } else {
+          onDateRangeChange({
+            _id: unavailability._id,
+            mode: 'dnd',
+            start,
+            end: day,
+          });
+        }
 
-        // TODO - add contractions
-        const days = eachDayOfInterval({ start, end });
-        days.forEach((d) => {
-          start = isBefore(day, d) ? day : d;
-          end = isAfter(day, d) ? day : d;
-        });
-        onDateRangeChange({
-          start,
-          end,
-        });
         setIsDraggedOver(false);
       },
       canDrop: () => {
@@ -135,14 +153,16 @@ const DragAndDropWrapper = ({
     blockPastDatesFrom,
     blockFutureDatesFrom,
     day,
-    isUnavailability,
+    headOrTail,
     onDateRangeChange,
   ]);
 
   return (
     <div
       ref={ref}
-      className={cx(dragging && 'opacity-50', isDraggedOver && 'opacity-50')}
+      className={cx({
+        'opacity-50': dragging || isDraggedOver,
+      })}
     >
       {children}
     </div>
@@ -208,12 +228,21 @@ export const MonthCalender = ({
           const afterDate =
             blockFutureDatesFrom && isAfter(day, blockFutureDatesFrom);
           const isUnavailable =
-            unavailabilities?.some((u) => {
+            unavailabilities?.filter((u) => {
               return isWithinInterval(day, {
                 start: new Date(u.startDate),
                 end: new Date(u.endDate),
               });
-            }) ?? false;
+            }) ?? [];
+
+          let headOrTail: 'head' | 'tail' | null = null;
+          if (isUnavailable.length) {
+            headOrTail = isSameDay(day, isUnavailable[0].startDate)
+              ? 'head'
+              : isSameDay(day, isUnavailable[0].endDate)
+                ? 'tail'
+                : null;
+          }
 
           const disabled = beforeDate || afterDate;
           const selectable = !beforeDate && !afterDate;
@@ -264,7 +293,7 @@ export const MonthCalender = ({
                 key={day.toISOString()}
                 unavailabilities={unavailabilities}
                 day={day}
-                isUnavailability={isUnavailable}
+                headOrTail={headOrTail}
                 blockFutureDatesFrom={blockFutureDatesFrom}
                 blockPastDatesFrom={blockPastDatesFrom}
                 onDateRangeChange={onDateRangeChange}
@@ -274,12 +303,15 @@ export const MonthCalender = ({
                   aria-disabled={disabled}
                   data-date={day.toISOString()}
                   className={cx(
-                    'size-20 text-2xl font-bold rounded-full grid place-items-center cursor-pointer text-blue-500 bg-blue-200 hover:bg-blue-600 hover:text-white',
+                    'size-20 text-2xl font-bold rounded-full grid place-items-center text-blue-500 bg-blue-200 hover:bg-blue-600 hover:text-white',
                     {
+                      'cursor-grab inset-ring-apt-primary inset-ring-4':
+                        !!headOrTail,
                       'bg-transparent cursor-default text-gray-400 hover:bg-transparent hover:text-gray-400':
                         disabled,
                       'bg-blue-600 text-white': isSameDay(day, new Date()),
-                      'bg-black text-white hover:bg-black': isUnavailable,
+                      'bg-black text-white hover:bg-black':
+                        isUnavailable.length > 0,
                       'opacity-50':
                         internalDateRange.start &&
                         hoveredDate &&

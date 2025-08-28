@@ -55,6 +55,7 @@ const employeeAvailabiltySchema = z.object({
     ),
   endDate: z.string().optional(),
   reason: z.string().optional(),
+  mode: z.string().optional(),
 });
 
 export function EmployeeAvailabilityForm({
@@ -148,6 +149,21 @@ export function EmployeeAvailabilityForm({
       end: values.endDate,
     });
 
+    if (!dateRange) return;
+    if (values.mode === 'dnd' && values._id) {
+      const unavailability = unavailabilities.find((u) => u._id === values._id);
+      if (!unavailability) return;
+      await mutateUnavailability({
+        unavailablityId: unavailability._id,
+        employeeId: employee._id,
+        startDate: dateRange.start.toISOString(),
+        endDate: dateRange.end.toISOString(),
+        reason: values.reason ?? unavailability.reason,
+      });
+      setOpen(false);
+      return;
+    }
+
     const overlaps = unavailabilities.filter((u) => {
       const days = eachDayOfInterval({ start: u.startDate, end: u.endDate });
       return days.some((day) => isWithinInterval(day, dateRange));
@@ -219,6 +235,17 @@ export function EmployeeAvailabilityForm({
             end: undefined,
           }}
           onDateRangeChange={(dateRange) => {
+            if (dateRange.mode === 'dnd') {
+              form.setValue(
+                'startDate',
+                dateFormat(dateRange.start, 'yyyy-MM-dd'),
+              );
+              form.setValue('endDate', dateFormat(dateRange.end, 'yyyy-MM-dd'));
+              form.setValue('_id', dateRange._id);
+              form.setValue('mode', 'dnd');
+              setOpen(true);
+              return;
+            }
             const overlaps = findOverlaps({
               start: dateFormat(dateRange.start, 'yyyy-MM-dd'),
               end: dateFormat(dateRange.end, 'yyyy-MM-dd'),
