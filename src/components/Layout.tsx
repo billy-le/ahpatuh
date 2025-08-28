@@ -3,7 +3,7 @@ import {
   useRouter,
   type LinkComponentProps,
 } from '@tanstack/react-router';
-import { LayoutDashboard, Calendar, Users, Cog } from 'lucide-react';
+import { LayoutDashboard, Calendar, Users, Cog, LogsIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { authClient } from '~/lib/auth-client';
 import { cx } from '~/lib/cva';
@@ -29,6 +29,11 @@ const navigation: Array<
     to: '/employees',
     name: 'Employees',
     icon: <Users />,
+  },
+  {
+    to: '/services',
+    name: 'Services',
+    icon: <LogsIcon />,
   },
 ];
 

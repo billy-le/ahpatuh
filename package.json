@@ -17,6 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
     "@convex-dev/better-auth": "^0.7.14",
     "@convex-dev/migrations": "^0.2.9",
     "@convex-dev/react-query": "0.0.0-alpha.11",
