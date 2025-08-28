@@ -265,7 +265,7 @@ export const MonthCalender = ({
                     'bg-gray-300 text-gray-600 hover:bg-gray-400':
                       (isSameMonth(addMonths(date, 1), day) && !afterDate) ||
                       (!beforeDate && isBefore(day, startOfMonth(date))),
-                    'bg-black': isUnavailable,
+                    'bg-black': isUnavailable.length > 0,
                   },
                 )}
                 data-date={day.toISOString()}
