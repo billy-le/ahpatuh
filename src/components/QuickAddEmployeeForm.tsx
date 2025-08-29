@@ -34,6 +34,7 @@ export function QuickAddEmployeeForm({ onSuccess }: QuickAddEmployeeFormProps) {
     defaultValues: {
       firstName: '',
       lastName: '',
+      isActive: true,
       isBookable: true,
     },
   });

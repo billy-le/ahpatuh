@@ -27,7 +27,7 @@ export const getEmployeeUnavailabilities = query({
                 q
                   .eq('employeeId', employee!._id)
                   .gte('startDate', args.startDate!)
-                  .lte('endDate', args.endDate!),
+                  .lte('startDate', args.endDate!),
               )
               .collect(),
           ),

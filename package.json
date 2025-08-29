@@ -8,9 +8,6 @@
     "dev": "concurrently --kill-others \"vite dev\" \"convex dev\"",
     "build": "vite build && tsc --noEmit",
     "start": "vite start",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
     "prepare": "husky"
   },
   "keywords": [],

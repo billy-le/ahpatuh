@@ -34,6 +34,7 @@ export const mutateBusinessHours = mutation({
       }),
     ),
   },
+  returns: v.array(v.id('businessHours')),
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);
     const business = await getBusiness(ctx, user);
@@ -48,7 +49,6 @@ export const mutateBusinessHours = mutation({
         )
       )
         throw new ConvexError({ message: 'Invalid BusinessHour Id' });
-
       return await Promise.all(
         businessHours
           .map((businessHour) => {
@@ -63,7 +63,7 @@ export const mutateBusinessHours = mutation({
             });
           })
           .filter((x) => x),
-      );
+      ).then(() => args.businessHours.map((bh) => bh._id!));
     }
     return await Promise.all(
       args.businessHours.map((businessHour) =>
