@@ -38,7 +38,7 @@ function Dashboard() {
     );
   }
 
-  if (error && error instanceof ConvexError) {
+  if (error && error instanceof ConvexError && error.data.code !== 404) {
     return <Layout>{error.data.message}</Layout>;
   }
 

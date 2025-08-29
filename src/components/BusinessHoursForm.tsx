@@ -1,13 +1,6 @@
 import { Id } from 'convex/_generated/dataModel';
 import { endOfWeek, startOfWeek, eachDayOfInterval } from 'date-fns';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '~/components/ui/form';
+import { Form, FormField, FormLabel } from '~/components/ui/form';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,8 +30,8 @@ const weekDays = eachDayOfInterval({
 });
 
 export function BusinessHoursForm({ onSuccess }: BusinessHoursFormProps) {
-  const createBusinessHours = useMutation(
-    api.businessHours.createBusinessHours,
+  const mutateBusinessHours = useMutation(
+    api.businessHours.mutateBusinessHours,
   );
 
   const form = useForm({
@@ -64,8 +57,8 @@ export function BusinessHoursForm({ onSuccess }: BusinessHoursFormProps) {
       dayOfWeek: businessHour.dayOfWeek.getDay() as 0 | 1 | 2 | 3 | 4 | 5 | 6,
     }));
 
-    await createBusinessHours({ businessHours: data }).then((data) => {
-      onSuccess(data);
+    await mutateBusinessHours({ businessHours: data }).then((data) => {
+      if (data) onSuccess(data);
     });
   };
 

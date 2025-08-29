@@ -40,11 +40,11 @@ export function AddressForm({ onSuccess }: AddressFormProps) {
     },
   });
 
-  const createAddress = useMutation(api.address.createAddress);
+  const mutateAddress = useMutation(api.address.mutateAddress);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    await createAddress(values).then((addressId) => {
-      onSuccess(addressId);
+    await mutateAddress(values).then((addressId) => {
+      if (addressId) onSuccess(addressId);
     });
   };
 

@@ -97,7 +97,15 @@ export const employeeUnavailability = {
 export const service = {
   name: v.string(),
   description: v.optional(v.string()),
-  price: v.float64(),
+  price: v.number(),
+  businessId: v.id('businesses'),
+  categoryId: v.optional(v.id('categories')),
+  updatedAt: v.string(),
+};
+
+export const category = {
+  name: v.string(),
+  description: v.optional(v.string()),
   businessId: v.id('businesses'),
   updatedAt: v.string(),
 };
@@ -113,8 +121,7 @@ export const customer = {
 export const booking = {
   businessId: v.id('businesses'),
   customerId: v.id('customers'),
-  employeeId: v.optional(v.id('employees')),
-  serviceIds: v.array(v.id('services')),
+  bookingServiceIds: v.array(v.id('bookingServices')),
   date: v.string(),
   updatedAt: v.string(),
   status: v.union(
@@ -123,6 +130,46 @@ export const booking = {
     v.literal('COMPLETED'),
     v.literal('CANCELED'),
   ),
+  reviewId: v.optional(v.id('reviews')),
+};
+
+export const bookingService = {
+  employeeId: v.id('employees'),
+  customerId: v.id('customers'),
+  businessId: v.id('businessId'),
+  bookingId: v.id('bookings'),
+  serviceId: v.id('services'),
+  updatedAt: v.string(),
+};
+
+export const review = {
+  businessId: v.id('businesses'),
+  bookingId: v.id('bookings'),
+  customerId: v.id('customers'),
+  rating: v.union(
+    v.literal(1),
+    v.literal(2),
+    v.literal(3),
+    v.literal(4),
+    v.literal(5),
+  ),
+  review: v.optional(v.string()),
+  serviceFeedbackIds: v.optional(v.array(v.id('serviceFeedbacks'))),
+  updatedAt: v.string(),
+};
+
+export const serviceFeedback = {
+  employeeId: v.id('employees'),
+  serviceId: v.id('services'),
+  rating: v.union(
+    v.literal(1),
+    v.literal(2),
+    v.literal(3),
+    v.literal(4),
+    v.literal(5),
+  ),
+  review: v.optional(v.string()),
+  updatedAt: v.string(),
 };
 
 export const language = {
@@ -161,4 +208,12 @@ export default defineSchema({
   services: defineTable(service).index('by_businessId', ['businessId']),
   customers: defineTable(customer).index('by_businessId', ['businessId']),
   bookings: defineTable(booking).index('by_businessId', ['businessId']),
+  bookingServices: defineTable(bookingService).index('by_businessId', [
+    'businessId',
+  ]),
+  reviews: defineTable(review).index('by_businessId', ['businessId']),
+  serviceFeedbacks: defineTable(serviceFeedback)
+    .index('by_serviceId', ['serviceId'])
+    .index('by_employeeId', ['employeeId']),
+  categories: defineTable(category).index('by_businessId', ['businessId']),
 });

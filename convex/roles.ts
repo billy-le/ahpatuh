@@ -1,23 +1,12 @@
 import { v, ConvexError } from 'convex/values';
-import { query, mutation, QueryCtx } from './_generated/server';
-import { betterAuthComponent } from './auth';
-import { Doc, Id } from './_generated/dataModel';
-
-async function getUserBusiness(ctx: QueryCtx) {
-  const userId = (await betterAuthComponent.getAuthUserId(ctx)) as Id<'users'>;
-  if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-  const business = await ctx.db
-    .query('businesses')
-    .withIndex('by_userId', (q) => q.eq('userId', userId))
-    .first();
-  return business;
-}
+import { query, mutation } from './_generated/server';
+import { getAuthUser, getBusiness } from './_utils';
 
 export const getRoles = query({
   args: {},
   handler: async (ctx) => {
-    const business = await getUserBusiness(ctx);
-    if (!business) return [] as Doc<'roles'>[];
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
     return await ctx.db
       .query('roles')
       .withIndex('by_business_id', (q) => q.eq('businessId', business._id))
@@ -25,17 +14,28 @@ export const getRoles = query({
   },
 });
 
-export const createRole = mutation({
+export const mutateRole = mutation({
   args: {
+    _id: v.optional(v.id('roles')),
     name: v.string(),
   },
   handler: async (ctx, args) => {
-    const business = await getUserBusiness(ctx);
-    if (!business)
-      throw new ConvexError({
-        message: 'Cannot create role because business does not exists',
-        code: 400,
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
+    if (args._id) {
+      const role = await ctx.db
+        .query('roles')
+        .withIndex('by_business_id', (q) => q.eq('businessId', business._id))
+        .unique();
+      if (!role)
+        throw new ConvexError({ message: 'Role not found', code: 404 });
+      if (role.businessId !== business._id)
+        throw new ConvexError({ message: 'Invalid Role Id', code: 403 });
+      return await ctx.db.patch(role._id, {
+        name: args.name,
+        updatedAt: new Date().toISOString(),
       });
+    }
 
     return await ctx.db.insert('roles', {
       name: args.name,

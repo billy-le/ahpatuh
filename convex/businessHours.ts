@@ -1,12 +1,24 @@
 import { ConvexError, v } from 'convex/values';
 import { mutation, query } from './_generated/server';
-import { betterAuthComponent } from './auth';
-import { Id } from './_generated/dataModel';
+import { getAuthUser, getBusiness } from './_utils';
 
-export const createBusinessHours = mutation({
+export const getBusinessHours = query({
+  args: {},
+  handler: async (ctx) => {
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
+    return await ctx.db
+      .query('businessHours')
+      .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
+      .collect();
+  },
+});
+
+export const mutateBusinessHours = mutation({
   args: {
     businessHours: v.array(
       v.object({
+        _id: v.optional(v.id('businessHours')),
         dayOfWeek: v.union(
           v.literal(0),
           v.literal(1),
@@ -23,20 +35,37 @@ export const createBusinessHours = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const business = await ctx.db
-      .query('businesses')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
-      .first();
-    if (!business)
-      throw new ConvexError({
-        message: 'Cannot create business hours. Business does not exists',
-        code: 400,
-      });
-    return Promise.all(
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
+    // all or none
+    if (args.businessHours.every((businessHour) => businessHour._id!)) {
+      const businessHours = await Promise.all(
+        args.businessHours.map((hour) => ctx.db.get(hour._id!)),
+      );
+      if (
+        businessHours.some(
+          (businessHour) => businessHour?.businessId !== business._id,
+        )
+      )
+        throw new ConvexError({ message: 'Invalid BusinessHour Id' });
+
+      return await Promise.all(
+        businessHours
+          .map((businessHour) => {
+            const foundBh = args.businessHours.find(
+              (bh) => bh._id === businessHour!._id,
+            );
+            if (!foundBh) return null;
+            const { _id, ...params } = foundBh;
+            return ctx.db.patch(businessHour!._id, {
+              ...params,
+              updatedAt: new Date().toISOString(),
+            });
+          })
+          .filter((x) => x),
+      );
+    }
+    return await Promise.all(
       args.businessHours.map((businessHour) =>
         ctx.db.insert('businessHours', {
           ...businessHour,
@@ -45,25 +74,5 @@ export const createBusinessHours = mutation({
         }),
       ),
     );
-  },
-});
-
-export const getBusinessHours = query({
-  args: {},
-  handler: async (ctx) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const business = await ctx.db
-      .query('businesses')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
-      .first();
-    if (!business) return [];
-
-    return ctx.db
-      .query('businessHours')
-      .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
-      .collect();
   },
 });

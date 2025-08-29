@@ -47,6 +47,7 @@ const employeeAvailabiltySchema = z.object({
     .optional()
     .refine(
       (d) => {
+        if (!d) return true;
         return !isBefore(endOfDay(new Date(d)), endOfYesterday());
       },
       {
@@ -112,14 +113,14 @@ export function EmployeeAvailabilityForm({
 
     const overlaps = unavailabilities.filter((u) => {
       const days = eachDayOfInterval({ start: u.startDate, end: u.endDate });
-      return days.some((day) => isWithinInterval(day, dateRange));
+      return days.some((day) => isWithinInterval(day, dateRange!));
     });
 
     // extend current unavailabities to selected date range
     if (overlaps.length) {
       // find the earliest and latest date in all the date ranges
-      let startDate = dateRange.start;
-      let endDate = dateRange.end;
+      let startDate = dateRange!.start;
+      let endDate = dateRange!.end;
 
       overlaps.forEach((u) => {
         startDate = isBefore(u.startDate, startDate)

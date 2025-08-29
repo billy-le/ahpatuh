@@ -1,11 +1,11 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
-import { betterAuthComponent } from './auth';
 import { ConvexError } from 'convex/values';
-import { Id } from './_generated/dataModel';
+import { getAuthUser, getBusiness } from './_utils';
 
-export const createAddress = mutation({
+export const mutateAddress = mutation({
   args: {
+    _id: v.optional(v.id('addresses')),
     street1: v.string(),
     street2: v.optional(v.string()),
     city: v.string(),
@@ -14,19 +14,20 @@ export const createAddress = mutation({
     postalCode: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const business = await ctx.db
-      .query('businesses')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
-      .first();
-    if (!business)
-      throw new ConvexError({
-        message: 'Cannot create address. Business does not exists',
-        code: 400,
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
+    if (args._id) {
+      const address = await ctx.db.get(args._id);
+      if (!address)
+        throw new ConvexError({ message: 'Address not found', code: 404 });
+      if (address.businessId !== business._id)
+        throw new ConvexError({ message: 'Invalid Address Id', code: 403 });
+      const { _id, ...params } = args;
+      return await ctx.db.patch(_id, {
+        ...params,
+        updatedAt: new Date().toISOString(),
       });
+    }
 
     return ctx.db.insert('addresses', {
       ...args,
@@ -38,19 +39,13 @@ export const createAddress = mutation({
 
 export const getAddress = query({
   args: {},
-  handler: async (ctx, args) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const business = await ctx.db
-      .query('businesses')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
-      .first();
-    if (!business) return null;
+  handler: async (ctx) => {
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
+
     return ctx.db
       .query('addresses')
       .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
-      .first();
+      .unique();
   },
 });

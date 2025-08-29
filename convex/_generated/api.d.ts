@@ -8,16 +8,19 @@
  * @module
  */
 
+import type * as _utils from '../_utils.js';
 import type * as address from '../address.js';
 import type * as auth from '../auth.js';
 import type * as business from '../business.js';
 import type * as businessHours from '../businessHours.js';
+import type * as category from '../category.js';
 import type * as employeeUnavailability from '../employeeUnavailability.js';
 import type * as employees from '../employees.js';
 import type * as http from '../http.js';
 import type * as languages from '../languages.js';
-import type * as migrationts from '../migrationts.js';
+import type * as migrations from '../migrations.js';
 import type * as roles from '../roles.js';
+import type * as services from '../services.js';
 import type * as shifts from '../shifts.js';
 import type * as users from '../users.js';
 
@@ -36,16 +39,19 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  _utils: typeof _utils;
   address: typeof address;
   auth: typeof auth;
   business: typeof business;
   businessHours: typeof businessHours;
+  category: typeof category;
   employeeUnavailability: typeof employeeUnavailability;
   employees: typeof employees;
   http: typeof http;
   languages: typeof languages;
-  migrationts: typeof migrationts;
+  migrations: typeof migrations;
   roles: typeof roles;
+  services: typeof services;
   shifts: typeof shifts;
   users: typeof users;
 }>;

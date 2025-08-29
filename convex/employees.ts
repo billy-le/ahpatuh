@@ -1,26 +1,19 @@
 import { ConvexError, v } from 'convex/values';
 import { query, mutation } from './_generated/server';
-import { betterAuthComponent } from './auth';
-import { Id, Doc } from './_generated/dataModel';
+import { Doc } from './_generated/dataModel';
+import { getAuthUser, getBusiness } from './_utils';
 
 export const getEmployees = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const business = await ctx.db
-      .query('businesses')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
-      .first();
-    if (!business) return [];
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
     const employees = await ctx.db
       .query('employees')
       .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
       .collect();
 
-    let employeesWithPosition: (Doc<'employees'> & {
+    const employeesWithPosition: (Doc<'employees'> & {
       position: null | Doc<'roles'>;
     })[] = [];
 
@@ -45,16 +38,8 @@ export const createEmployee = mutation({
     isBookable: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const business = await ctx.db
-      .query('businesses')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
-      .first();
-    if (!business) throw new ConvexError({ message: 'Bad request', code: 400 });
-
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
     return await ctx.db.insert('employees', {
       ...args,
       businessId: business._id,
@@ -65,7 +50,7 @@ export const createEmployee = mutation({
 
 export const updateEmployee = mutation({
   args: {
-    employeeId: v.id('employees'),
+    _id: v.id('employees'),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
     email: v.optional(v.string()),
@@ -76,36 +61,28 @@ export const updateEmployee = mutation({
     positionId: v.optional(v.id('roles')),
   },
   handler: async (ctx, args) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const business = await ctx.db
-      .query('businesses')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
-      .first();
-    if (!business) throw new ConvexError({ message: 'Bad request', code: 400 });
-    const employee = await ctx.db.get(args.employeeId);
-    if (!employee) throw new ConvexError({ message: 'Bad request', code: 400 });
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
+    const employee = await ctx.db.get(args._id);
+    if (!employee)
+      throw new ConvexError({ message: 'Employee not found', code: 404 });
     if (employee.businessId !== business._id)
-      throw new ConvexError({ message: 'Forbidden', code: 400 });
-    const positions = await ctx.db
-      .query('roles')
-      .withIndex('by_business_id', (q) => q.eq('businessId', business._id))
-      .collect();
-    if (
-      args.positionId &&
-      !positions.find((position) => position._id === args.positionId)
-    )
-      throw new ConvexError({
-        message: 'Bad Request. Position not found for this business',
-        code: 400,
-      });
+      throw new ConvexError({ message: 'Invalid Employee Id', code: 403 });
+    if (args.positionId) {
+      const position = await ctx.db
+        .query('roles')
+        .withIndex('by_id', (q) => q.eq('_id', args.positionId!))
+        .unique();
+      if (!position)
+        throw new ConvexError({ message: 'Position not found', code: 404 });
+      if (position.businessId !== business._id)
+        throw new ConvexError({ message: 'Invalid Position Id', code: 403 });
+    }
 
-    const { employeeId, ...updateValues } = args;
+    const { _id, ...params } = args;
 
     return await ctx.db.patch(employee._id, {
-      ...updateValues,
+      ...params,
       updatedAt: new Date().toISOString(),
     });
   },
@@ -116,20 +93,13 @@ export const deleteEmployee = mutation({
     employeeId: v.id('employees'),
   },
   handler: async (ctx, args) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const business = await ctx.db
-      .query('businesses')
-      .withIndex('by_userId', (q) => q.eq('userId', userId))
-      .first();
-    if (!business) throw new ConvexError({ message: 'Bad request', code: 400 });
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
     const employee = await ctx.db.get(args.employeeId);
-    if (!employee) throw new ConvexError({ message: 'Bad request', code: 400 });
+    if (!employee)
+      throw new ConvexError({ message: 'Employee not found', code: 404 });
     if (employee.businessId !== business._id)
-      throw new ConvexError({ message: 'Forbidden', code: 400 });
-
+      throw new ConvexError({ message: 'Invalid Employee Id', code: 403 });
     return await ctx.db.delete(employee._id);
   },
 });

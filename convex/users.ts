@@ -1,18 +1,14 @@
-import { ConvexError, v } from 'convex/values';
+import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
-import { betterAuthComponent } from './auth';
-import { Id, Doc } from './_generated/dataModel';
+import { Doc } from './_generated/dataModel';
+import { getAuthUser } from './_utils';
 
 export const getUser = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    const user = await ctx.db.get(userId);
+    const user = await getAuthUser(ctx);
     let language: Doc<'languages'> | null = null;
-    if (user?.langId) {
+    if (user.langId) {
       language = await ctx.db.get(user.langId!);
     }
     return {
@@ -31,10 +27,7 @@ export const updateUser = mutation({
     timeZone: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = (await betterAuthComponent.getAuthUserId(
-      ctx,
-    )) as Id<'users'>;
-    if (!userId) throw new ConvexError({ message: 'Forbidden', code: 403 });
-    return await ctx.db.patch(userId, args);
+    const user = await getAuthUser(ctx);
+    return await ctx.db.patch(user._id, args);
   },
 });

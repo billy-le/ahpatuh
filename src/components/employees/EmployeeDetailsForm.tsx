@@ -59,9 +59,9 @@ export function EmployeeDetailsForm({
     hiredDate,
     isActive,
     isBookable,
-  }: z.infer<typeof updateEmployeeSchema>) => {
+  }: z.infer<typeof employeeDetailsSchema>) => {
     updateEmployee({
-      employeeId: employee._id,
+      _id: employee._id,
       firstName,
       lastName,
       email,

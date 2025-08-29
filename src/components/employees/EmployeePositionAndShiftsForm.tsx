@@ -157,7 +157,7 @@ export function EmployeePositionAndShiftsForm({
   ) => {
     Promise.all([
       updateEmployee({
-        employeeId: employee._id,
+        _id: employee._id,
         positionId: values.positionId as Id<'roles'>,
       }),
       mutateShifts({
