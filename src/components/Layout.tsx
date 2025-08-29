@@ -6,7 +6,6 @@ import {
 import { LayoutDashboard, Calendar, Users, Cog, LogsIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { authClient } from '~/lib/auth-client';
-import { cx } from '~/lib/cva';
 
 interface LayoutProps extends React.PropsWithChildren {
   className?: string;
@@ -93,9 +92,8 @@ export function Layout({ children, className }: LayoutProps) {
           </li>
         </ul>
       </section>
-      <main className={cx('m-6 py-4 px-6 rounded-md grow bg-white', className)}>
-        {' '}
-        {children}
+      <main className='m-6 py-4 px-6 rounded-md grow bg-white'>
+        <div className={className}>{children}</div>
       </main>
     </div>
   );

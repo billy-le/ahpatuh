@@ -32,7 +32,7 @@ export const mutateCategory = mutation({
         throw new ConvexError({ message: 'Category not found', code: 404 });
       if (category.businessId !== business._id)
         throw new ConvexError({ message: 'Invalid Category Id', code: 403 });
-      const { _id: _, ...params } = args;
+      const { _id, ...params } = args;
       return await ctx.db.patch(category._id, {
         ...params,
         updatedAt: new Date().toISOString(),

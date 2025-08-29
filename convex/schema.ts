@@ -41,6 +41,7 @@ export const address = {
 export const role = {
   name: v.string(),
   businessId: v.id('businesses'),
+  serviceId: v.optional(v.array(v.id('services'))),
   updatedAt: v.string(),
 };
 
@@ -125,10 +126,12 @@ export const booking = {
   date: v.string(),
   updatedAt: v.string(),
   status: v.union(
+    v.literal('REQUESTED'),
+    v.literal('CONFIRMED'),
     v.literal('PENDING'),
-    v.literal('IN_PROGRESS'),
     v.literal('COMPLETED'),
     v.literal('CANCELED'),
+    v.literal('NO SHOW'),
   ),
   reviewId: v.optional(v.id('reviews')),
 };
@@ -136,7 +139,7 @@ export const booking = {
 export const bookingService = {
   employeeId: v.id('employees'),
   customerId: v.id('customers'),
-  businessId: v.id('businessId'),
+  businessId: v.id('businesses'),
   bookingId: v.id('bookings'),
   serviceId: v.id('services'),
   updatedAt: v.string(),
@@ -161,6 +164,8 @@ export const review = {
 export const serviceFeedback = {
   employeeId: v.id('employees'),
   serviceId: v.id('services'),
+  reviewId: v.id('reviews'),
+  businessId: v.id('businesses'),
   rating: v.union(
     v.literal(1),
     v.literal(2),
@@ -213,7 +218,9 @@ export default defineSchema({
   ]),
   reviews: defineTable(review).index('by_businessId', ['businessId']),
   serviceFeedbacks: defineTable(serviceFeedback)
+    .index('by_businessId', ['businessId'])
     .index('by_serviceId', ['serviceId'])
-    .index('by_employeeId', ['employeeId']),
+    .index('by_employeeId', ['employeeId'])
+    .index('by_reviewId', ['reviewId']),
   categories: defineTable(category).index('by_businessId', ['businessId']),
 });

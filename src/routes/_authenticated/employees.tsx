@@ -16,6 +16,7 @@ import { employeeColumns } from '~/components/employees/columns';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
 import { Loader } from '~/components/ui/loader';
+import { Text } from '~/components/Text';
 
 export const Route = createFileRoute('/_authenticated/employees')({
   component: Employees,
@@ -35,10 +36,10 @@ function Employees() {
   } = useQuery(convexQuery(api.employees.getEmployees, {}));
 
   return (
-    <Layout className='space-y-8'>
+    <Layout className='space-y-6'>
       <header className='flex justify-between'>
         <div className='flex items-center gap-4'>
-          <h1 className='text-xl font-bold'>Employees</h1>
+          <Text el='h1'>Employees</Text>
           <Popover open={open}>
             <PopoverTrigger asChild>
               <Button
@@ -46,7 +47,8 @@ function Employees() {
                 disabled={
                   !business ||
                   isBusinessDetailsPending ||
-                  !!businessDetailsError
+                  !!businessDetailsError ||
+                  !!employeesError
                 }
                 onClick={() => {
                   setOpen(!open);
