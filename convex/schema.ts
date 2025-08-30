@@ -100,7 +100,8 @@ export const service = {
   description: v.optional(v.string()),
   price: v.number(),
   businessId: v.id('businesses'),
-  categoryId: v.optional(v.id('categories')),
+  categoryIds: v.optional(v.array(v.id('categories'))),
+  images: v.optional(v.string()),
   updatedAt: v.string(),
 };
 

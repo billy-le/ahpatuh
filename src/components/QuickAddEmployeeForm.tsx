@@ -16,7 +16,7 @@ import { api } from 'convex/_generated/api';
 import { Checkbox } from '~/components/ui/checkbox';
 
 interface QuickAddEmployeeFormProps {
-  onSuccess: (open: boolean) => void;
+  onSuccess: () => void;
 }
 
 const formSchema = z.object({
@@ -41,7 +41,7 @@ export function QuickAddEmployeeForm({ onSuccess }: QuickAddEmployeeFormProps) {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     await createEmployee(values).then(() => {
-      onSuccess(false);
+      onSuccess();
     });
   };
 

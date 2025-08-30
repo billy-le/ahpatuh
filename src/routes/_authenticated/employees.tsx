@@ -65,7 +65,11 @@ function Employees() {
                 setOpen(false);
               }}
             >
-              <QuickAddEmployeeForm onSuccess={setOpen} />
+              <QuickAddEmployeeForm
+                onSuccess={() => {
+                  setOpen(false);
+                }}
+              />
             </PopoverContent>
           </Popover>
         </div>
