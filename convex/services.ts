@@ -1,16 +1,38 @@
 import { ConvexError, v } from 'convex/values';
 import { query, mutation } from './_generated/server';
 import { getAuthUser, getBusiness } from './_utils';
+import { Doc } from './_generated/dataModel';
 
 export const getServices = query({
   args: {},
   handler: async (ctx) => {
     const user = await getAuthUser(ctx);
     const business = await getBusiness(ctx, user);
-    return await ctx.db
+    const services = await ctx.db
       .query('services')
       .withIndex('by_businessId', (q) => q.eq('businessId', business._id))
       .collect();
+
+    const serviceWithCategories: (Doc<'services'> & {
+      categories: Doc<'categories'>[];
+    })[] = [];
+
+    for (const { categoryIds = [], ...service } of services) {
+      const categories = await Promise.all(
+        categoryIds.map((catId) => ctx.db.get(catId)),
+      );
+      const nonNullCategories = categories.filter((c): c is Doc<'categories'> =>
+        Boolean(c),
+      );
+      const serviceWithCat = {
+        ...service,
+        categoryIds,
+        categories: nonNullCategories,
+      };
+      serviceWithCategories.push(serviceWithCat);
+    }
+
+    return serviceWithCategories;
   },
 });
 
@@ -20,7 +42,7 @@ export const mutateService = mutation({
     name: v.string(),
     description: v.optional(v.string()),
     price: v.number(),
-    categoryId: v.optional(v.id('categories')),
+    categoryIds: v.optional(v.array(v.id('categories'))),
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);

@@ -223,5 +223,8 @@ export default defineSchema({
     .index('by_serviceId', ['serviceId'])
     .index('by_employeeId', ['employeeId'])
     .index('by_reviewId', ['reviewId']),
-  categories: defineTable(category).index('by_businessId', ['businessId']),
+  categories: defineTable(category).index('by_businessId', [
+    'businessId',
+    'name',
+  ]),
 });

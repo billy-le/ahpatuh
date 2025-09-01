@@ -38,6 +38,14 @@ export const mutateCategory = mutation({
         updatedAt: new Date().toISOString(),
       });
     }
+    const category = await ctx.db
+      .query('categories')
+      .withIndex('by_businessId', (q) =>
+        q.eq('businessId', business._id).eq('name', args.name),
+      )
+      .first();
+    if (category !== null)
+      throw new ConvexError({ message: 'Category already exists', code: 400 });
     return await ctx.db.insert('categories', {
       ...args,
       businessId: business._id,
