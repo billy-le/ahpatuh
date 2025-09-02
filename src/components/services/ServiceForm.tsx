@@ -178,7 +178,7 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
         />
         <div className='my-8 flex flex-wrap gap-5'>
           {service?.media
-            .filter((m) => m.fileName.includes('small'))
+            .filter((m) => m.fileName.includes('thumbnail'))
             .map((m) => (
               <div key={m._id} className='relative size-32'>
                 <img
@@ -190,11 +190,11 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
                   className='absolute -top-4 -right-4 rounded-full z-10'
                   onClick={(e) => {
                     e.preventDefault();
+                    const filename = m.fileName.replace(/_thumbnail.*/, '');
                     const media = service.media.filter((sm) =>
-                      sm.fileName.startsWith(
-                        m.fileName.replace(/_thumbnail.*/, ''),
-                      ),
+                      sm.fileName.startsWith(filename),
                     );
+
                     for (const med of media) {
                       if (med._id) {
                         deleteStorageMedia({ storageId: med.storageId });
@@ -207,12 +207,7 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
                       name: service.name,
                       price: service.price,
                       mediaIds: service.media
-                        .filter(
-                          (sm) =>
-                            !sm.fileName.startsWith(
-                              m.fileName.replace(/_thumbnail.*/, ''),
-                            ),
-                        )
+                        .filter((sm) => !sm.fileName.startsWith(filename))
                         .map((m) => m._id),
                     });
                   }}

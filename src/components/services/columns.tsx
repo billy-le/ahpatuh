@@ -57,8 +57,38 @@ export const servicesColumns: ColumnDef<
   },
   {
     header: 'Images',
-    cell: ({ row: { original: _service } }) => {
-      return <div>{'none'}</div>;
+    cell: ({ row: { original: service } }) => {
+      const uniqueMedia = service.media.filter((m) =>
+        m.fileName.includes('thumbnail'),
+      );
+      const remainder = uniqueMedia.slice(3);
+      return (
+        <div className='grid'>
+          {remainder.length > 0 && (
+            <h2
+              className='col-start-1 row-start-1 text-right bg-white text-xl pr-1 border border-black rounded-md size-20'
+              style={{
+                rotate: '5deg',
+                marginLeft: '60px',
+              }}
+            >
+              {remainder.length}
+            </h2>
+          )}
+          {uniqueMedia.slice(0, 3).map((m, i) => (
+            <div key={m._id} className='col-start-1 row-start-1'>
+              <img
+                src={m.url}
+                className='object-cover border border-black rounded-md size-20'
+                style={{
+                  rotate: (i === 0 ? 0 : 5) + 'deg',
+                  marginLeft: i * 20 + 'px',
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      );
     },
   },
   {
