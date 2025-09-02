@@ -245,44 +245,44 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
               </div>
             );
           })}
-              <Button
-                className='w-fit'
-                type='button'
-                onClick={(e) => {
-                  e.preventDefault();
-                  imageInputRef.current?.click();
-                }}
-              >
-                Upload Images
-              </Button>
-              <FormControl>
-                <Input
-                  ref={imageInputRef}
-                  type='file'
-                  accept='image/jpeg,image/jpg,image/png,image/avif,image/webp'
-                  multiple
-                  className='hidden'
-                  onChange={async (e) => {
-                    const files = e.target.files;
-                    if (!files) {
-                      return;
-                    }
-                    const currentMedia = form.getValues('media') ?? [];
-                    const uniqueMedia = [...files].filter((file) => {
-                      const foundMedia = currentMedia.find(
-                        (m) => m.name === file.name,
-                      );
-                      if (foundMedia) return false;
-                      return true;
-                    });
-                    form.setValue('media', [...currentMedia, ...uniqueMedia]);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        </div>
+        <FormItem>
+          <Button
+            className='w-fit'
+            type='button'
+            onClick={(e) => {
+              e.preventDefault();
+              imageInputRef.current?.click();
+            }}
+          >
+            Upload Images
+          </Button>
+          <FormControl>
+            <Input
+              ref={imageInputRef}
+              type='file'
+              accept='image/jpeg,image/jpg,image/png,image/avif,image/webp'
+              multiple
+              className='hidden'
+              onChange={async (e) => {
+                const files = e.target.files;
+                if (!files) {
+                  return;
+                }
+                const currentMedia = form.getValues('media') ?? [];
+                const uniqueMedia = [...files].filter((file) => {
+                  const foundMedia = currentMedia.find(
+                    (m) => m.name === file.name,
+                  );
+                  if (foundMedia) return false;
+                  return true;
+                });
+                form.setValue('media', [...currentMedia, ...uniqueMedia]);
+              }}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
         <Button>Save</Button>
       </form>
     </Form>
