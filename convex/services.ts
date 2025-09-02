@@ -44,6 +44,7 @@ export const getServices = query({
         categoryIds,
         categories: nonNullCategories,
         media: ms,
+        mediaIds,
       };
 
       serviceWithCategories.push(serviceWithCat);
@@ -56,9 +57,9 @@ export const getServices = query({
 export const mutateService = mutation({
   args: {
     _id: v.optional(v.id('services')),
-    name: v.string(),
+    name: v.optional(v.string()),
     description: v.optional(v.string()),
-    price: v.number(),
+    price: v.optional(v.number()),
     categoryIds: v.optional(v.array(v.id('categories'))),
     mediaIds: v.optional(v.array(v.id('media'))),
   },

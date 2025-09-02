@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import z from 'zod';
 import {
   Form,
@@ -15,7 +15,7 @@ import { Button } from '~/components/ui/button';
 import { useMutation } from 'convex/react';
 import { api } from 'convex/_generated/api';
 import { Id } from 'convex/_generated/dataModel';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
 import { Combobox } from '../ui/combobox';
@@ -37,7 +37,7 @@ const serviceFormSchema = z.object({
     .refine((value) => !isNaN(parseFloat(value)), {
       message: 'Price must be a number',
     }),
-  media: z.instanceof(FileList),
+  media: z.array(z.instanceof(File)).default([]),
 });
 
 export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
@@ -53,6 +53,7 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
   const [cats, setCats] = useState<
     { value: string; displayName: string; active: boolean }[]
   >([]);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     setCats(
@@ -73,8 +74,12 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
       name: service?.name ?? '',
       description: service?.description,
       price: service?.price?.toString() ?? '',
+      media: [],
     },
   });
+
+  const watchForm = useWatch(form);
+  const formMedia = watchForm.media;
 
   const onSubmit = async (values: z.infer<typeof serviceFormSchema>) => {
     const formData = new FormData();
@@ -86,10 +91,19 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
 
     // don't set content-type
     try {
-      const results: { mediaIds: Id<'media'>[] } = await fetch('/api/media', {
+      // upload media in the bg
+      fetch('/api/media', {
         method: 'POST',
         body: formData,
-      }).then((res) => res.json());
+      })
+        .then((res) => res.json())
+        .then((data: { mediaIds: Id<'media'>[] }) => {
+          const mediaIds = data.mediaIds;
+          mutateService({
+            _id: service!._id,
+            mediaIds: [...(service?.mediaIds ?? []), ...mediaIds],
+          });
+        });
 
       await mutateService({
         _id: service?._id,
@@ -99,7 +113,6 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
         categoryIds: cats
           .filter((c) => c.active)
           .map((c) => c.value as Id<'categories'>),
-        mediaIds: results.mediaIds,
       }).then(() => onSuccess());
     } catch (err) {
       console.log(err);
@@ -163,11 +176,11 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
           emptyString='No categories found'
           disabled={isCategoriesPending || !!categoriesError}
         />
-        <div className='my-8 flex gap-5'>
+        <div className='my-8 flex flex-wrap gap-5'>
           {service?.media
             .filter((m) => m.fileName.includes('small'))
             .map((m) => (
-              <div key={m._id} className='relative size-32 rounded'>
+              <div key={m._id} className='relative size-32'>
                 <img
                   src={m.url}
                   className='max-w-full h-full w-full object-cover rounded-md'
@@ -179,7 +192,7 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
                     e.preventDefault();
                     const media = service.media.filter((sm) =>
                       sm.fileName.startsWith(
-                        m.fileName.replace(/_small.*/, ''),
+                        m.fileName.replace(/_thumbnail.*/, ''),
                       ),
                     );
                     for (const med of media) {
@@ -197,7 +210,7 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
                         .filter(
                           (sm) =>
                             !sm.fileName.startsWith(
-                              m.fileName.replace(/_small.*/, ''),
+                              m.fileName.replace(/_thumbnail.*/, ''),
                             ),
                         )
                         .map((m) => m._id),
@@ -208,26 +221,67 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
                 </Button>
               </div>
             ))}
+          {formMedia!.map((media) => {
+            const blob = URL.createObjectURL(media);
+            return (
+              <div key={media.name} className='relative size-32'>
+                <img
+                  src={blob}
+                  className='max-w-full h-full w-full object-cover rounded-md'
+                />
+                <Button
+                  size='icon'
+                  className='absolute -top-4 -right-4 rounded-full z-10'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    form.setValue(
+                      'media',
+                      formMedia!.filter((m) => m.name !== media.name),
+                    );
+                  }}
+                >
+                  <XIcon />
+                </Button>
+              </div>
+            );
+          })}
         </div>
         <FormField
           control={form.control}
           name='media'
           render={() => (
             <FormItem>
-              <FormLabel>Images</FormLabel>
+              <Button
+                className='w-fit'
+                type='button'
+                onClick={(e) => {
+                  e.preventDefault();
+                  imageInputRef.current?.click();
+                }}
+              >
+                Upload Images
+              </Button>
               <FormControl>
                 <Input
+                  ref={imageInputRef}
                   type='file'
                   accept='image/jpeg,image/jpg,image/png,image/avif,image/webp'
                   multiple
+                  className='hidden'
                   onChange={async (e) => {
                     const files = e.target.files;
                     if (!files) {
-                      form.setValue('media', new FileList());
                       return;
                     }
-
-                    form.setValue('media', files);
+                    const currentMedia = form.getValues('media') ?? [];
+                    const uniqueMedia = [...files].filter((file) => {
+                      const foundMedia = currentMedia.find(
+                        (m) => m.name === file.name,
+                      );
+                      if (foundMedia) return false;
+                      return true;
+                    });
+                    form.setValue('media', [...currentMedia, ...uniqueMedia]);
                   }}
                 />
               </FormControl>
