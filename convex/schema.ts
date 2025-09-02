@@ -101,7 +101,7 @@ export const service = {
   price: v.number(),
   businessId: v.id('businesses'),
   categoryIds: v.optional(v.array(v.id('categories'))),
-  images: v.optional(v.string()),
+  mediaIds: v.optional(v.array(v.id('media'))),
   updatedAt: v.string(),
 };
 
@@ -178,6 +178,21 @@ export const serviceFeedback = {
   updatedAt: v.string(),
 };
 
+export const media = {
+  businessId: v.id('businesses'),
+  fileName: v.string(),
+  width: v.number(),
+  height: v.number(),
+  duration: v.optional(v.number()),
+  altText: v.optional(v.string()),
+  caption: v.optional(v.string()),
+  title: v.optional(v.string()),
+  description: v.optional(v.string()),
+  updatedAt: v.string(),
+  createdBy: v.union(v.id('users'), v.id('employees'), v.id('customers')),
+  storageId: v.id('_storage'),
+};
+
 export const language = {
   name: v.string(),
   value: v.string(),
@@ -227,4 +242,7 @@ export default defineSchema({
     'businessId',
     'name',
   ]),
+  media: defineTable(media)
+    .index('by_businessId', ['businessId'])
+    .index('by_createdBy', ['createdBy']),
 });
