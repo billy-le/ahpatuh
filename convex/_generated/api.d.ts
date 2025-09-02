@@ -21,6 +21,7 @@ import type * as employeeUnavailability from '../employeeUnavailability.js';
 import type * as employees from '../employees.js';
 import type * as http from '../http.js';
 import type * as languages from '../languages.js';
+import type * as media from '../media.js';
 import type * as migrations from '../migrations.js';
 import type * as reviews from '../reviews.js';
 import type * as roles from '../roles.js';
@@ -57,6 +58,7 @@ declare const fullApi: ApiFromModules<{
   employees: typeof employees;
   http: typeof http;
   languages: typeof languages;
+  media: typeof media;
   migrations: typeof migrations;
   reviews: typeof reviews;
   roles: typeof roles;

@@ -101,7 +101,7 @@ export const service = {
   price: v.number(),
   businessId: v.id('businesses'),
   categoryIds: v.optional(v.array(v.id('categories'))),
-  images: v.optional(v.string()),
+  media: v.optional(v.array(v.id('media'))),
   updatedAt: v.string(),
 };
 
@@ -178,6 +178,33 @@ export const serviceFeedback = {
   updatedAt: v.string(),
 };
 
+export const media = {
+  businessId: v.id('businesses'),
+  filename: v.string(),
+  original_filename: v.string(),
+  filePath: v.string(),
+  fileSize: v.bigint(),
+  mimeType: v.string(),
+  fileHash: v.string(),
+  mediaType: v.union(v.literal('image'), v.literal('video')),
+  width: v.int64(),
+  height: v.int64(),
+  duration: v.optional(v.int64()),
+  altText: v.optional(v.string()),
+  caption: v.optional(v.string()),
+  title: v.string(),
+  description: v.string(),
+  folderPath: v.string(),
+  status: v.union(
+    v.literal('PENDING'),
+    v.literal('PROCESSING'),
+    v.literal('READY'),
+    v.literal('FAILED'),
+  ),
+  updatedAt: v.string(),
+  createdBy: v.union(v.id('users'), v.id('employees'), v.id('customers')),
+};
+
 export const language = {
   name: v.string(),
   value: v.string(),
@@ -227,4 +254,9 @@ export default defineSchema({
     'businessId',
     'name',
   ]),
+  media: defineTable(media)
+    .index('by_businessId', ['businessId'])
+    .index('by_hashId', ['fileHash'])
+    .index('by_folderPath', ['folderPath'])
+    .index('by_createdBy', ['createdBy']),
 });

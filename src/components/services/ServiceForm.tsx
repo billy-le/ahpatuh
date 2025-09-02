@@ -35,6 +35,7 @@ const serviceFormSchema = z.object({
     .refine((value) => !isNaN(parseFloat(value)), {
       message: 'Price must be a number',
     }),
+  media: z.instanceof(FileList),
 });
 
 export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
@@ -72,9 +73,24 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
   });
 
   const onSubmit = async (values: z.infer<typeof serviceFormSchema>) => {
+    const formData = new FormData();
+    if (values.media.length) {
+      for (const file of values.media) {
+        formData.append('files[]', file);
+      }
+    }
+
+    // don't set content-type
+    // TODO - get media._id and add to services
+    const _images = await fetch('/api/media', {
+      method: 'POST',
+      body: formData,
+    }).then((res) => res.json());
+    console.log(_images);
     await mutateService({
-      ...values,
       _id: service?._id,
+      name: values.name,
+      description: values.description,
       price: parseFloat(values.price),
       categoryIds: cats
         .filter((c) => c.active)
@@ -138,6 +154,32 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
           placeholder='Search categories'
           emptyString='No categories found'
           disabled={isCategoriesPending || !!categoriesError}
+        />
+        <FormField
+          control={form.control}
+          name='media'
+          render={() => (
+            <FormItem>
+              <FormLabel>Images</FormLabel>
+              <FormControl>
+                <Input
+                  type='file'
+                  accept='images/*'
+                  multiple
+                  onChange={async (e) => {
+                    const files = e.target.files;
+                    if (!files) {
+                      form.setValue('media', new FileList());
+                      return;
+                    }
+
+                    form.setValue('media', files);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
         <Button>Save</Button>
       </form>
