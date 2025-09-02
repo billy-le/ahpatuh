@@ -14,14 +14,16 @@ import { Textarea } from '~/components/ui/textarea';
 import { Button } from '~/components/ui/button';
 import { useMutation } from 'convex/react';
 import { api } from 'convex/_generated/api';
-import { Doc, Id } from 'convex/_generated/dataModel';
+import { Id } from 'convex/_generated/dataModel';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
 import { Combobox } from '../ui/combobox';
+import { FunctionReturnType } from 'convex/server';
+import { XIcon } from 'lucide-react';
 
 interface ServiceFormProps {
-  service?: Doc<'services'>;
+  service?: FunctionReturnType<typeof api.services.getServices>[number];
   onSuccess: () => void;
 }
 
@@ -41,6 +43,8 @@ const serviceFormSchema = z.object({
 export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
   const mutateService = useMutation(api.services.mutateService);
   const mutateCategory = useMutation(api.category.mutateCategory);
+  const deleteStorageMedia = useMutation(api.media.deleteStorage);
+  const deleteMedia = useMutation(api.media.deleteMedia);
   const {
     data: categories = [],
     isPending: isCategoriesPending,
@@ -81,21 +85,25 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
     }
 
     // don't set content-type
-    // TODO - get media._id and add to services
-    const _images = await fetch('/api/media', {
-      method: 'POST',
-      body: formData,
-    }).then((res) => res.json());
-    console.log(_images);
-    await mutateService({
-      _id: service?._id,
-      name: values.name,
-      description: values.description,
-      price: parseFloat(values.price),
-      categoryIds: cats
-        .filter((c) => c.active)
-        .map((c) => c.value as Id<'categories'>),
-    }).then(() => onSuccess());
+    try {
+      const results: { mediaIds: Id<'media'>[] } = await fetch('/api/media', {
+        method: 'POST',
+        body: formData,
+      }).then((res) => res.json());
+
+      await mutateService({
+        _id: service?._id,
+        name: values.name,
+        description: values.description,
+        price: parseFloat(values.price),
+        categoryIds: cats
+          .filter((c) => c.active)
+          .map((c) => c.value as Id<'categories'>),
+        mediaIds: results.mediaIds,
+      }).then(() => onSuccess());
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -155,6 +163,52 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
           emptyString='No categories found'
           disabled={isCategoriesPending || !!categoriesError}
         />
+        <div className='my-8 flex gap-5'>
+          {service?.media
+            .filter((m) => m.fileName.includes('small'))
+            .map((m) => (
+              <div key={m._id} className='relative size-32 rounded'>
+                <img
+                  src={m.url}
+                  className='max-w-full h-full w-full object-cover rounded-md'
+                />
+                <Button
+                  size='icon'
+                  className='absolute -top-4 -right-4 rounded-full z-10'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const media = service.media.filter((sm) =>
+                      sm.fileName.startsWith(
+                        m.fileName.replace(/_small.*/, ''),
+                      ),
+                    );
+                    for (const med of media) {
+                      if (med._id) {
+                        deleteStorageMedia({ storageId: med.storageId });
+                        deleteMedia({ _id: med._id });
+                      }
+                    }
+
+                    mutateService({
+                      _id: service._id,
+                      name: service.name,
+                      price: service.price,
+                      mediaIds: service.media
+                        .filter(
+                          (sm) =>
+                            !sm.fileName.startsWith(
+                              m.fileName.replace(/_small.*/, ''),
+                            ),
+                        )
+                        .map((m) => m._id),
+                    });
+                  }}
+                >
+                  <XIcon />
+                </Button>
+              </div>
+            ))}
+        </div>
         <FormField
           control={form.control}
           name='media'
@@ -164,7 +218,7 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
               <FormControl>
                 <Input
                   type='file'
-                  accept='images/*'
+                  accept='image/jpeg,image/jpg,image/png,image/avif,image/webp'
                   multiple
                   onChange={async (e) => {
                     const files = e.target.files;

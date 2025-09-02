@@ -63,7 +63,18 @@ async function processImage(inputFile: File) {
     options: { quality: 95, format: format as MediaVariant['format'] },
   });
 
-  const processedImages = [];
+  const processedImages = [
+    {
+      buffer: originalOptimized,
+      filename: originalFilename,
+      mimeType: `image/${format}`,
+      size: originalOptimized.length,
+      width: metadata.width,
+      height: metadata.height,
+    },
+  ];
+
+  const filenameWithoutExt = originalFilename.replace(`.${format}`, '');
 
   for (const variant of DEFAULT_VARIANTS) {
     const clone = image.clone();
@@ -78,9 +89,8 @@ async function processImage(inputFile: File) {
     const metadata = await sharp(processedVariantBuffer).metadata();
 
     const processedVariant = {
-      variantName: variant.name,
       buffer: processedVariantBuffer,
-      filename: '',
+      filename: `${filenameWithoutExt}_${variant.name}.${variant.format}`,
       mimeType: `image/${variant.format}`,
       size: processedVariantBuffer.length,
       width: metadata.width,
@@ -89,18 +99,18 @@ async function processImage(inputFile: File) {
     processedImages.push(processedVariant);
   }
 
-  return {
-    originalOptimized,
-    originalFilename,
-    processedImages,
-  };
+  return processedImages;
 }
 
 export const ServerRoute = createServerFileRoute('/api/media/').methods({
   POST: async ({ request }) => {
     try {
+      // check auth is coming from client or user-domain
       const auth = await fetchAuth();
-      if (!auth)
+      const token =
+        auth.token ||
+        request.headers.get('Authorization')?.replace('Bearer ', '');
+      if (!token) {
         return new Response(
           JSON.stringify({ message: 'Unauthorized requiest' }),
           {
@@ -108,6 +118,11 @@ export const ServerRoute = createServerFileRoute('/api/media/').methods({
             statusText: 'Forbidden',
           },
         );
+      }
+      // set the auth token for Convex to make HTTP queries with.
+      if (token) {
+        convex.setAuth(token);
+      }
 
       const formData = await request.formData();
       const imageData = formData.getAll('files[]');
@@ -119,12 +134,65 @@ export const ServerRoute = createServerFileRoute('/api/media/').methods({
       } else if (success) {
         const mediaIds: Id<'media'>[] = [];
         for (const file of data) {
-          await processImage(file).then(async (img) => {
-            // upload to convex in bg
-            const mediaId = await convex.mutation(api.media.mutateMedia, {
-              fileName: img.originalFilename,
-            });
-            mediaIds.push(mediaId);
+          // convert all images to variants and then upload them to convex
+          // after uploaded completed, store the storageId
+          await processImage(file).then(async (processedImages) => {
+            for (const image of processedImages) {
+              let arrayBuffer: ArrayBuffer;
+              if (image.buffer instanceof Buffer) {
+                const buffer = image.buffer;
+                arrayBuffer = buffer.buffer.slice(
+                  buffer.byteOffset,
+                  buffer.byteOffset + buffer.byteLength,
+                ) as ArrayBuffer;
+              } else if (image.buffer instanceof ArrayBuffer) {
+                arrayBuffer = image.buffer;
+              } else {
+                const buffer = image.buffer;
+                arrayBuffer = buffer.buffer.slice(
+                  buffer.byteOffset,
+                  buffer.byteOffset + buffer.byteLength,
+                ) as ArrayBuffer;
+              }
+              const uploadUrl = await convex.mutation(
+                api.media.generateUploadUrl,
+              );
+              const uploadResults = await fetch(uploadUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': image.mimeType },
+                body: new Blob([arrayBuffer], { type: image.mimeType }),
+              });
+              let { storageId } = await uploadResults.json();
+              // check for duplicates using sha256
+
+              const uploadedMetadata = await convex.query(
+                api.media.getMetadata,
+                { storageId },
+              );
+
+              if (uploadedMetadata) {
+                const storedFiles = await convex.query(
+                  api.media.getFilesBySha256,
+                  { sha256: uploadedMetadata.sha256 },
+                );
+
+                if (storedFiles.length) {
+                  // delete created storage then use found file as new storage id
+                  await convex.mutation(api.media.deleteStorage, { storageId });
+                  storageId = storedFiles[0]._id;
+                }
+              }
+              // upload to convex in bg
+              const mediaId = await convex.mutation(api.media.mutateMedia, {
+                storageId,
+                fileName: image.filename,
+                width: image.width,
+                height: image.height,
+              });
+              if (mediaId) {
+                mediaIds.push(mediaId);
+              }
+            }
           });
         }
         return new Response(JSON.stringify({ mediaIds }), {
