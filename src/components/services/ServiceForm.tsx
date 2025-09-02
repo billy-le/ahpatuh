@@ -245,12 +245,6 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
               </div>
             );
           })}
-        </div>
-        <FormField
-          control={form.control}
-          name='media'
-          render={() => (
-            <FormItem>
               <Button
                 className='w-fit'
                 type='button'
