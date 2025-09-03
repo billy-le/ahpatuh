@@ -62,8 +62,8 @@ export const Route = createRootRouteWithContext<{
         content: 'width=device-width, initial-scale=1',
       },
       ...seo({
-        title: 'Calendar',
-        description: 'Calendar',
+        title: 'Ahpatuh',
+        description: 'Ahpatuh',
       }),
     ],
     links: [

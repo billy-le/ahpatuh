@@ -18,10 +18,12 @@ import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AuthenticatedServicesRouteImport } from './routes/_authenticated/services'
-import { Route as AuthenticatedEmployeesRouteImport } from './routes/_authenticated/employees'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
+import { Route as AuthenticatedServicesIndexRouteImport } from './routes/_authenticated/services/index'
+import { Route as AuthenticatedEmployeesIndexRouteImport } from './routes/_authenticated/employees/index'
+import { Route as AuthenticatedServicesCategoriesRouteImport } from './routes/_authenticated/services/categories'
+import { Route as AuthenticatedEmployeesPositionsRouteImport } from './routes/_authenticated/employees/positions'
 import { ServerRoute as ApiMediaIndexServerRouteImport } from './routes/api/media/index'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
 
@@ -61,16 +63,6 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedServicesRoute = AuthenticatedServicesRouteImport.update({
-  id: '/services',
-  path: '/services',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedEmployeesRoute = AuthenticatedEmployeesRouteImport.update({
-  id: '/employees',
-  path: '/employees',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -81,6 +73,30 @@ const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
   path: '/calendar',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedServicesIndexRoute =
+  AuthenticatedServicesIndexRouteImport.update({
+    id: '/services/',
+    path: '/services/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedEmployeesIndexRoute =
+  AuthenticatedEmployeesIndexRouteImport.update({
+    id: '/employees/',
+    path: '/employees/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedServicesCategoriesRoute =
+  AuthenticatedServicesCategoriesRouteImport.update({
+    id: '/services/categories',
+    path: '/services/categories',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedEmployeesPositionsRoute =
+  AuthenticatedEmployeesPositionsRouteImport.update({
+    id: '/employees/positions',
+    path: '/employees/positions',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const ApiMediaIndexServerRoute = ApiMediaIndexServerRouteImport.update({
   id: '/api/media/',
   path: '/api/media/',
@@ -100,9 +116,11 @@ export interface FileRoutesByFullPath {
   '/sign-up': typeof SignUpRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/employees': typeof AuthenticatedEmployeesRoute
-  '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/employees/positions': typeof AuthenticatedEmployeesPositionsRoute
+  '/services/categories': typeof AuthenticatedServicesCategoriesRoute
+  '/employees': typeof AuthenticatedEmployeesIndexRoute
+  '/services': typeof AuthenticatedServicesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -112,9 +130,11 @@ export interface FileRoutesByTo {
   '/sign-up': typeof SignUpRoute
   '/calendar': typeof AuthenticatedCalendarRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/employees': typeof AuthenticatedEmployeesRoute
-  '/services': typeof AuthenticatedServicesRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/employees/positions': typeof AuthenticatedEmployeesPositionsRoute
+  '/services/categories': typeof AuthenticatedServicesCategoriesRoute
+  '/employees': typeof AuthenticatedEmployeesIndexRoute
+  '/services': typeof AuthenticatedServicesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -126,9 +146,11 @@ export interface FileRoutesById {
   '/sign-up': typeof SignUpRoute
   '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/employees': typeof AuthenticatedEmployeesRoute
-  '/_authenticated/services': typeof AuthenticatedServicesRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/employees/positions': typeof AuthenticatedEmployeesPositionsRoute
+  '/_authenticated/services/categories': typeof AuthenticatedServicesCategoriesRoute
+  '/_authenticated/employees/': typeof AuthenticatedEmployeesIndexRoute
+  '/_authenticated/services/': typeof AuthenticatedServicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -140,9 +162,11 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/calendar'
     | '/dashboard'
+    | '/settings'
+    | '/employees/positions'
+    | '/services/categories'
     | '/employees'
     | '/services'
-    | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,9 +176,11 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/calendar'
     | '/dashboard'
+    | '/settings'
+    | '/employees/positions'
+    | '/services/categories'
     | '/employees'
     | '/services'
-    | '/settings'
   id:
     | '__root__'
     | '/'
@@ -165,9 +191,11 @@ export interface FileRouteTypes {
     | '/sign-up'
     | '/_authenticated/calendar'
     | '/_authenticated/dashboard'
-    | '/_authenticated/employees'
-    | '/_authenticated/services'
     | '/_authenticated/settings'
+    | '/_authenticated/employees/positions'
+    | '/_authenticated/services/categories'
+    | '/_authenticated/employees/'
+    | '/_authenticated/services/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -255,20 +283,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/services': {
-      id: '/_authenticated/services'
-      path: '/services'
-      fullPath: '/services'
-      preLoaderRoute: typeof AuthenticatedServicesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/employees': {
-      id: '/_authenticated/employees'
-      path: '/employees'
-      fullPath: '/employees'
-      preLoaderRoute: typeof AuthenticatedEmployeesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -281,6 +295,34 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof AuthenticatedCalendarRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/services/': {
+      id: '/_authenticated/services/'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof AuthenticatedServicesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/employees/': {
+      id: '/_authenticated/employees/'
+      path: '/employees'
+      fullPath: '/employees'
+      preLoaderRoute: typeof AuthenticatedEmployeesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/services/categories': {
+      id: '/_authenticated/services/categories'
+      path: '/services/categories'
+      fullPath: '/services/categories'
+      preLoaderRoute: typeof AuthenticatedServicesCategoriesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/employees/positions': {
+      id: '/_authenticated/employees/positions'
+      path: '/employees/positions'
+      fullPath: '/employees/positions'
+      preLoaderRoute: typeof AuthenticatedEmployeesPositionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -307,17 +349,21 @@ declare module '@tanstack/react-start/server' {
 interface AuthenticatedRouteChildren {
   AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedEmployeesRoute: typeof AuthenticatedEmployeesRoute
-  AuthenticatedServicesRoute: typeof AuthenticatedServicesRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedEmployeesPositionsRoute: typeof AuthenticatedEmployeesPositionsRoute
+  AuthenticatedServicesCategoriesRoute: typeof AuthenticatedServicesCategoriesRoute
+  AuthenticatedEmployeesIndexRoute: typeof AuthenticatedEmployeesIndexRoute
+  AuthenticatedServicesIndexRoute: typeof AuthenticatedServicesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedEmployeesRoute: AuthenticatedEmployeesRoute,
-  AuthenticatedServicesRoute: AuthenticatedServicesRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedEmployeesPositionsRoute: AuthenticatedEmployeesPositionsRoute,
+  AuthenticatedServicesCategoriesRoute: AuthenticatedServicesCategoriesRoute,
+  AuthenticatedEmployeesIndexRoute: AuthenticatedEmployeesIndexRoute,
+  AuthenticatedServicesIndexRoute: AuthenticatedServicesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

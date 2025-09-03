@@ -1,6 +1,7 @@
 import { ConvexError, v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getAuthUser, getBusiness } from './_utils';
+import { api } from './_generated/api';
 
 export const getCategories = query({
   args: {},
@@ -24,10 +25,7 @@ export const mutateCategory = mutation({
     const user = await getAuthUser(ctx);
     const business = await getBusiness(ctx, user);
     if (args._id) {
-      const category = await ctx.db
-        .query('categories')
-        .withIndex('by_id', (q) => q.eq('_id', args._id!))
-        .unique();
+      const category = await ctx.db.get(args._id);
       if (!category)
         throw new ConvexError({ message: 'Category not found', code: 404 });
       if (category.businessId !== business._id)
@@ -61,14 +59,24 @@ export const deleteCategory = mutation({
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);
     const business = await getBusiness(ctx, user);
-    const category = await ctx.db
-      .query('categories')
-      .withIndex('by_id', (q) => q.eq('_id', args._id))
-      .unique();
+    const category = await ctx.db.get(args._id);
     if (!category)
       throw new ConvexError({ message: 'Category not found', code: 404 });
     if (category.businessId !== business._id)
       throw new ConvexError({ message: 'Invalid Category Id', code: 403 });
+    const servicesWithCategory = await ctx.db.query('services').collect();
+    for (const service of servicesWithCategory) {
+      if (service.categoryIds?.length) {
+        const withoutCategory = service.categoryIds.filter(
+          (id) => id !== category._id,
+        );
+        await ctx.runMutation(api.services.mutateService, {
+          _id: service._id,
+          categoryIds: withoutCategory,
+        });
+      }
+    }
+
     return await ctx.db.delete(category._id);
   },
 });

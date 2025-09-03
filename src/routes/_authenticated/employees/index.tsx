@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { QuickAddEmployeeForm } from '~/components/QuickAddEmployeeForm';
-import { EmployeeDataTable } from '~/components/employees/data-table';
+import { DataTable } from '~/components/DataTable';
 import { api } from 'convex/_generated/api';
 import { useState } from 'react';
 import { employeeColumns } from '~/components/employees/columns';
@@ -18,7 +18,7 @@ import { convexQuery } from '@convex-dev/react-query';
 import { Loader } from '~/components/ui/loader';
 import { Text } from '~/components/Text';
 
-export const Route = createFileRoute('/_authenticated/employees')({
+export const Route = createFileRoute('/_authenticated/employees/')({
   component: Employees,
 });
 
@@ -43,7 +43,6 @@ function Employees() {
           <Popover open={open}>
             <PopoverTrigger asChild>
               <Button
-                variant='outline'
                 disabled={
                   !business ||
                   isBusinessDetailsPending ||
@@ -86,7 +85,7 @@ function Employees() {
             <Loader />
           </div>
         ) : (
-          <EmployeeDataTable columns={employeeColumns} data={employees} />
+          <DataTable columns={employeeColumns} data={employees} />
         )}
       </section>
     </Layout>

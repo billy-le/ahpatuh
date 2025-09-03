@@ -40,6 +40,7 @@ export const address = {
 
 export const role = {
   name: v.string(),
+  description: v.optional(v.string()),
   businessId: v.id('businesses'),
   serviceId: v.optional(v.array(v.id('services'))),
   updatedAt: v.string(),
@@ -215,7 +216,9 @@ export default defineSchema({
   roles: defineTable(role)
     .index('by_business_id', ['businessId'])
     .index('unique_position', ['name', 'businessId']),
-  employees: defineTable(employee).index('by_businessId', ['businessId']),
+  employees: defineTable(employee)
+    .index('by_businessId', ['businessId'])
+    .index('by_positionId', ['positionId']),
   languages: defineTable(language).index('language', ['value']),
   shifts: defineTable(shift)
     .index('by_businessId', ['businessId'])
@@ -226,7 +229,9 @@ export default defineSchema({
     .index('by_employee_end_date', ['employeeId', 'endDate'])
     .index('by_business_id', ['businessId'])
     .index('by_employee_id', ['employeeId']),
-  services: defineTable(service).index('by_businessId', ['businessId']),
+  services: defineTable(service)
+    .index('by_businessId', ['businessId'])
+    .index('by_categoryId', ['categoryIds']),
   customers: defineTable(customer).index('by_businessId', ['businessId']),
   bookings: defineTable(booking).index('by_businessId', ['businessId']),
   bookingServices: defineTable(bookingService).index('by_businessId', [

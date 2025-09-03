@@ -13,10 +13,10 @@ import {
   PopoverContent,
 } from '~/components/ui/popover';
 import { useState } from 'react';
-import { ServiceDataTable } from '~/components/services/data-table';
+import { DataTable } from '~/components/DataTable';
 import { servicesColumns } from '~/components/services/columns';
 
-export const Route = createFileRoute('/_authenticated/services')({
+export const Route = createFileRoute('/_authenticated/services/')({
   component: ServicePage,
 });
 
@@ -50,7 +50,7 @@ function ServicePage() {
           </Popover>
         </div>
       </div>
-      <ServiceDataTable data={services} columns={servicesColumns} />
+      <DataTable data={services} columns={servicesColumns} />
     </Layout>
   );
 }

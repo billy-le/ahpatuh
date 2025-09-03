@@ -3,17 +3,32 @@ import {
   useRouter,
   type LinkComponentProps,
 } from '@tanstack/react-router';
-import { LayoutDashboard, Calendar, Users, Cog, LogsIcon } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Calendar,
+  Users,
+  Cog,
+  LogsIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+} from 'lucide-react';
+import React, { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { authClient } from '~/lib/auth-client';
+import { cx } from '~/lib/cva';
 
 interface LayoutProps extends React.PropsWithChildren {
   className?: string;
 }
 
-const navigation: Array<
-  Pick<LinkComponentProps, 'to'> & { name: string; icon: React.ReactElement }
-> = [
+type NavigationLink = Pick<LinkComponentProps, 'to'> & {
+  name: string;
+  icon: React.ReactElement;
+};
+
+const navigation: (NavigationLink & {
+  subPaths?: Omit<NavigationLink, 'icon'>[];
+})[] = [
   {
     to: '/dashboard',
     name: 'Dashboard',
@@ -28,35 +43,89 @@ const navigation: Array<
     to: '/employees',
     name: 'Employees',
     icon: <Users />,
+    subPaths: [{ to: '/employees/positions', name: 'Positions' }],
   },
   {
     to: '/services',
     name: 'Services',
     icon: <LogsIcon />,
+    subPaths: [
+      {
+        to: '/services/categories',
+        name: 'Categories',
+      },
+    ],
   },
 ];
+
+const NavMenuItem = ({
+  to,
+  name,
+  icon,
+  subPaths = [],
+}: (typeof navigation)[number]) => {
+  const active = window.location.pathname.startsWith(to);
+  const [open, setOpen] = useState(active);
+  return (
+    <>
+      <li
+        className={cx(
+          'flex items-center justify-between rounded-md hover:bg-apt-secondary px-4 py-2',
+          {
+            'bg-apt-secondary': active,
+          },
+        )}
+      >
+        <Link to={to} className='w-full'>
+          <div className='flex items-center gap-4'>
+            {icon}
+            <span>{name}</span>
+          </div>
+        </Link>
+        {subPaths.length > 0 && (
+          <Button
+            variant='ghost'
+            className='p-0! size-6'
+            onClick={() => {
+              setOpen(!open);
+            }}
+          >
+            {open ? <ChevronDownIcon /> : <ChevronUpIcon />}
+          </Button>
+        )}
+      </li>
+      {open && subPaths.length > 0 && (
+        <li className='border-l border-black ml-8 pl-4'>
+          <ul className='space-y-4'>
+            {subPaths.map(({ name, to }) => (
+              <li key={name} className='rounded-md hover:bg-apt-secondary'>
+                <Link
+                  activeProps={{
+                    className: 'bg-apt-secondary rounded-md',
+                  }}
+                  to={to}
+                  className='block py-2 px-4'
+                >
+                  {name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </li>
+      )}
+    </>
+  );
+};
 
 export function Layout({ children, className }: LayoutProps) {
   const router = useRouter();
   return (
     <div className='flex min-h-dvh bg-apt-hot-pink'>
-      <section className='py-10 flex flex-col justify-between shrink-0 min-w-40 border-r-2 border-black'>
+      <section className='py-10 flex flex-col justify-between shrink-0 min-w-80 border-r-2 border-black'>
         <nav className='px-4'>
           <ul className='space-y-4'>
-            {navigation.map(({ name, to, icon }) => (
-              <li className='rounded-md hover:bg-apt-secondary' key={name}>
-                <Link
-                  activeProps={{
-                    className: 'block bg-apt-secondary rounded-md',
-                  }}
-                  to={to}
-                >
-                  <div className='flex items-center gap-4 py-2 px-4'>
-                    {icon}
-                    <span>{name}</span>
-                  </div>
-                </Link>
-              </li>
+            {navigation.map((navItem) => (
+              <NavMenuItem key={navItem.to} {...navItem} />
             ))}
           </ul>
         </nav>

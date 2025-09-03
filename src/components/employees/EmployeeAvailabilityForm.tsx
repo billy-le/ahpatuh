@@ -29,7 +29,7 @@ import { api } from 'convex/_generated/api';
 import { useMemo, useState } from 'react';
 import { useMutation } from 'convex/react';
 import { Input } from '../ui/input';
-import { EmployeeDataTable } from './data-table';
+import { DataTable } from '~/components/DataTable';
 import { employeeUnavailabitiesColumns } from './columns';
 import { Dialog, DialogContent } from '../ui/dialog';
 import { Button } from '../ui/button';
@@ -262,7 +262,7 @@ export function EmployeeAvailabilityForm({
           unavailabilities={unavailabilities}
         />
       ) : (
-        <EmployeeDataTable
+        <DataTable
           columns={employeeUnavailabitiesColumns}
           data={unavailabilities}
         />
