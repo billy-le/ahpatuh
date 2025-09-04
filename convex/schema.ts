@@ -101,8 +101,6 @@ export const service = {
   description: v.optional(v.string()),
   price: v.number(),
   businessId: v.id('businesses'),
-  categoryIds: v.optional(v.array(v.id('categories'))),
-  mediaIds: v.optional(v.array(v.id('media'))),
   updatedAt: v.string(),
 };
 
@@ -111,6 +109,11 @@ export const category = {
   description: v.optional(v.string()),
   businessId: v.id('businesses'),
   updatedAt: v.string(),
+};
+
+export const serviceCategory = {
+  serviceId: v.id('services'),
+  categoryId: v.id('categories'),
 };
 
 export const customer = {
@@ -124,7 +127,6 @@ export const customer = {
 export const booking = {
   businessId: v.id('businesses'),
   customerId: v.id('customers'),
-  bookingServiceIds: v.array(v.id('bookingServices')),
   date: v.string(),
   updatedAt: v.string(),
   status: v.union(
@@ -182,16 +184,33 @@ export const serviceFeedback = {
 export const media = {
   businessId: v.id('businesses'),
   fileName: v.string(),
+  altText: v.optional(v.string()),
+  status: v.union(
+    v.literal('PENDING'),
+    v.literal('READY'),
+    v.literal('FAILED'),
+  ),
+  createdBy: v.union(v.id('users'), v.id('employees'), v.id('customers')),
+  updatedAt: v.string(),
+};
+
+export const mediaVariant = {
+  fileName: v.string(),
+  mimeType: v.string(),
   width: v.number(),
   height: v.number(),
-  duration: v.optional(v.number()),
-  altText: v.optional(v.string()),
-  caption: v.optional(v.string()),
-  title: v.optional(v.string()),
-  description: v.optional(v.string()),
-  updatedAt: v.string(),
-  createdBy: v.union(v.id('users'), v.id('employees'), v.id('customers')),
+  url: v.string(),
   storageId: v.id('_storage'),
+};
+
+export const mediaMediaVariant = {
+  mediaId: v.id('media'),
+  mediaVariantId: v.id('mediaVariants'),
+};
+
+export const serviceMedia = {
+  serviceId: v.id('services'),
+  mediaId: v.id('media'),
 };
 
 export const language = {
@@ -229,9 +248,7 @@ export default defineSchema({
     .index('by_employee_end_date', ['employeeId', 'endDate'])
     .index('by_business_id', ['businessId'])
     .index('by_employee_id', ['employeeId']),
-  services: defineTable(service)
-    .index('by_businessId', ['businessId'])
-    .index('by_categoryId', ['categoryIds']),
+  services: defineTable(service).index('by_businessId', ['businessId']),
   customers: defineTable(customer).index('by_businessId', ['businessId']),
   bookings: defineTable(booking).index('by_businessId', ['businessId']),
   bookingServices: defineTable(bookingService).index('by_businessId', [
@@ -250,4 +267,14 @@ export default defineSchema({
   media: defineTable(media)
     .index('by_businessId', ['businessId'])
     .index('by_createdBy', ['createdBy']),
+  serviceCategories: defineTable(serviceCategory)
+    .index('by_serviceId', ['serviceId'])
+    .index('by_categoryId', ['categoryId']),
+  mediaVariants: defineTable(mediaVariant),
+  mediaMediaVariants: defineTable(mediaMediaVariant)
+    .index('by_mediaId', ['mediaId'])
+    .index('by_mediaVariantId', ['mediaVariantId']),
+  serviceMedia: defineTable(serviceMedia)
+    .index('by_serviceId', ['serviceId'])
+    .index('by_mediaId', ['mediaId']),
 });

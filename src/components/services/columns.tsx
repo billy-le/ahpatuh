@@ -58,10 +58,14 @@ export const servicesColumns: ColumnDef<
   {
     header: 'Images',
     cell: ({ row: { original: service } }) => {
-      const uniqueMedia = service.media.filter((m) =>
+      const imageProcessing = service.media.filter(
+        (m) => m.status === 'PENDING',
+      );
+      const images = service.media.flatMap((m) => m.variants);
+      const uniqueMedia = images.filter((m) =>
         m.fileName.includes('thumbnail'),
       );
-      const remainder = uniqueMedia.slice(3);
+      const remainder = [...uniqueMedia.slice(3), ...imageProcessing.slice(3)];
       return (
         <div className='grid'>
           {remainder.length > 0 && (
@@ -87,6 +91,19 @@ export const servicesColumns: ColumnDef<
               />
             </div>
           ))}
+          {imageProcessing.slice(0, 3).map((m, i) => {
+            return (
+              <div key={m._id} className='col-start-1 row-start-1'>
+                <div
+                  className='border border-black rounded-md size-20'
+                  style={{
+                    rotate: '5deg',
+                    marginLeft: (i ?? 1) * 20 * uniqueMedia.length + 'px',
+                  }}
+                ></div>
+              </div>
+            );
+          })}
         </div>
       );
     },

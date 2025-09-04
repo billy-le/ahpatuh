@@ -22,12 +22,17 @@ import type * as employees from "../employees.js";
 import type * as http from "../http.js";
 import type * as languages from "../languages.js";
 import type * as media from "../media.js";
+import type * as mediaMediaVariants from "../mediaMediaVariants.js";
+import type * as mediaVariants from "../mediaVariants.js";
 import type * as migrations from "../migrations.js";
 import type * as reviews from "../reviews.js";
 import type * as roles from "../roles.js";
+import type * as serviceCategories from "../serviceCategories.js";
 import type * as serviceFeedbacks from "../serviceFeedbacks.js";
+import type * as serviceMedia from "../serviceMedia.js";
 import type * as services from "../services.js";
 import type * as shifts from "../shifts.js";
+import type * as storage from "../storage.js";
 import type * as users from "../users.js";
 
 import type {
@@ -59,12 +64,17 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   languages: typeof languages;
   media: typeof media;
+  mediaMediaVariants: typeof mediaMediaVariants;
+  mediaVariants: typeof mediaVariants;
   migrations: typeof migrations;
   reviews: typeof reviews;
   roles: typeof roles;
+  serviceCategories: typeof serviceCategories;
   serviceFeedbacks: typeof serviceFeedbacks;
+  serviceMedia: typeof serviceMedia;
   services: typeof services;
   shifts: typeof shifts;
+  storage: typeof storage;
   users: typeof users;
 }>;
 declare const fullApiWithMounts: typeof fullApi;

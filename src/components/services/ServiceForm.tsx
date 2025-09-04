@@ -12,9 +12,8 @@ import {
 import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Button } from '~/components/ui/button';
-import { useMutation } from 'convex/react';
+import { useConvex, useMutation } from 'convex/react';
 import { api } from 'convex/_generated/api';
-import { Id } from 'convex/_generated/dataModel';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
@@ -43,28 +42,27 @@ const serviceFormSchema = z.object({
 export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
   const mutateService = useMutation(api.services.mutateService);
   const mutateCategory = useMutation(api.category.mutateCategory);
-  const deleteStorageMedia = useMutation(api.media.deleteStorage);
+  const mutateServiceMedia = useMutation(api.serviceMedia.mutateServiceMedia);
+  const deleteServiceMedia = useMutation(api.serviceMedia.deleteServiceMedia);
   const deleteMedia = useMutation(api.media.deleteMedia);
+  const convex = useConvex();
   const {
     data: categories = [],
     isPending: isCategoriesPending,
     error: categoriesError,
   } = useQuery(convexQuery(api.category.getCategories, {}));
-  const [cats, setCats] = useState<
-    { value: string; displayName: string; active: boolean }[]
+  const [selectedCategories, setSelectedCategories] = useState<
+    typeof categories
   >([]);
+  const [storageMedia, setStorageMedia] = useState(service?.media ?? []);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const categoriesLoadedRef = useRef(false);
 
   useEffect(() => {
-    setCats(
-      categories.map((c) => ({
-        value: c._id,
-        displayName: c.name,
-        active:
-          !!cats.find((cat) => cat.active && cat.value === c._id) ||
-          !!service?.categoryIds?.includes(c._id),
-      })),
-    );
+    if (!isCategoriesPending && !categoriesLoadedRef.current) {
+      setSelectedCategories(service?.categories ?? []);
+      categoriesLoadedRef.current = true;
+    }
   }, [categories]);
 
   const form = useForm({
@@ -82,38 +80,58 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
   const formMedia = watchForm.media;
 
   const onSubmit = async (values: z.infer<typeof serviceFormSchema>) => {
-    const formData = new FormData();
-    if (values.media.length) {
-      for (const file of values.media) {
-        formData.append('files[]', file);
-      }
-    }
-
-    // don't set content-type
-    try {
-      // upload media in the bg
-      fetch('/api/media', {
-        method: 'POST',
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then((data: { mediaIds: Id<'media'>[] }) => {
-          const mediaIds = data.mediaIds;
-          mutateService({
-            _id: service!._id,
-            mediaIds: [...(service?.mediaIds ?? []), ...mediaIds],
-          });
+    const removedMedia =
+      service?.media?.filter(
+        (media) => !storageMedia.find((sm) => sm._id === media._id),
+      ) ?? [];
+    const serviceMedia = await Promise.all(
+      removedMedia.map((media) => {
+        return convex.query(api.serviceMedia.getServiceMedia, {
+          mediaId: media._id,
         });
+      }),
+    ).then((res) => res.flat());
+    await Promise.all(
+      serviceMedia.map((serviceMedia) =>
+        deleteServiceMedia({ _id: serviceMedia._id }),
+      ),
+    );
+    await Promise.all(
+      removedMedia.map((media) => deleteMedia({ _id: media._id })),
+    );
 
-      await mutateService({
+    try {
+      const serviceId = await mutateService({
         _id: service?._id,
         name: values.name,
         description: values.description,
         price: parseFloat(values.price),
-        categoryIds: cats
-          .filter((c) => c.active)
-          .map((c) => c.value as Id<'categories'>),
-      }).then(() => onSuccess());
+        categoryIds: selectedCategories.map((c) => c._id),
+      });
+      if (serviceId) {
+        const formData = new FormData();
+        if (values.media.length) {
+          for (const file of values.media) {
+            formData.append('files[]', file);
+          }
+        }
+        // dont await. don't add content-type in headers, browser will set
+        fetch('/api/media', {
+          method: 'POST',
+          body: formData,
+        }).then(async (res) => {
+          const data: {
+            mediaIds: FunctionReturnType<typeof api.media.mutateMedia>[];
+          } = await res.json();
+          Promise.all(
+            data.mediaIds.map((mId) =>
+              mutateServiceMedia({ serviceId, mediaId: mId! }),
+            ),
+          );
+        });
+
+        onSuccess();
+      }
     } catch (err) {
       console.log(err);
     }
@@ -163,9 +181,16 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
         />
         <Combobox
           emptySelectionString='Assign Categories'
-          data={cats}
+          data={categories.map((category) => ({
+            value: category._id,
+            displayName: category.name,
+            active: !!selectedCategories.find((c) => c._id === category._id),
+          }))}
           onChange={(data) => {
-            setCats(data);
+            const selected = categories.filter((category) =>
+              data.find((d) => d.active && d.value === category._id),
+            );
+            setSelectedCategories(selected);
           }}
           addHandler={(value) => {
             mutateCategory({
@@ -177,45 +202,32 @@ export function ServiceForm({ service, onSuccess }: ServiceFormProps) {
           disabled={isCategoriesPending || !!categoriesError}
         />
         <div className='my-8 flex flex-wrap gap-5'>
-          {service?.media
-            .filter((m) => m.fileName.includes('thumbnail'))
-            .map((m) => (
-              <div key={m._id} className='relative size-32'>
-                <img
-                  src={m.url}
-                  className='max-w-full h-full w-full object-cover rounded-md'
-                />
-                <Button
-                  size='icon'
-                  className='absolute -top-4 -right-4 rounded-full z-10'
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const filename = m.fileName.replace(/_thumbnail.*/, '');
-                    const media = service.media.filter((sm) =>
-                      sm.fileName.startsWith(filename),
-                    );
+          {storageMedia.map((media) => {
+            const variants = media.variants;
 
-                    for (const med of media) {
-                      if (med._id) {
-                        deleteStorageMedia({ storageId: med.storageId });
-                        deleteMedia({ _id: med._id });
-                      }
-                    }
-
-                    mutateService({
-                      _id: service._id,
-                      name: service.name,
-                      price: service.price,
-                      mediaIds: service.media
-                        .filter((sm) => !sm.fileName.startsWith(filename))
-                        .map((m) => m._id),
-                    });
-                  }}
-                >
-                  <XIcon />
-                </Button>
-              </div>
-            ))}
+            return variants
+              .filter((variant) => variant.fileName.includes('thumbnail'))
+              .map((variant) => (
+                <div key={variant._id} className='relative size-32'>
+                  <img
+                    src={variant.url}
+                    className='max-w-full h-full w-full object-cover rounded-md'
+                  />
+                  <Button
+                    size='icon'
+                    className='absolute -top-4 -right-4 rounded-full z-10'
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      setStorageMedia((storageMedia) =>
+                        storageMedia.filter((m) => m._id !== media._id),
+                      );
+                    }}
+                  >
+                    <XIcon />
+                  </Button>
+                </div>
+              ));
+          })}
           {formMedia!.map((media) => {
             const blob = URL.createObjectURL(media);
             return (

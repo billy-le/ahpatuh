@@ -64,7 +64,7 @@ const NavMenuItem = ({
   icon,
   subPaths = [],
 }: (typeof navigation)[number]) => {
-  const active = window.location.pathname.startsWith(to);
+  const active = window.location.pathname.startsWith(to as string);
   const [open, setOpen] = useState(active);
   return (
     <>

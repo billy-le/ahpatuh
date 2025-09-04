@@ -5,6 +5,7 @@ import sharp from 'sharp';
 import { Id } from 'convex/_generated/dataModel';
 import { api } from 'convex/_generated/api';
 import { convex } from '~/services/convex-http-client';
+import { FunctionReturnType } from 'convex/server';
 
 const dataSchema = z.array(z.instanceof(File));
 
@@ -134,9 +135,24 @@ export const ServerRoute = createServerFileRoute('/api/media/').methods({
       } else if (success) {
         const mediaIds: Id<'media'>[] = [];
         for (const file of data) {
+          const mediaId = await convex.mutation(api.media.mutateMedia, {
+            fileName: file.name,
+          });
+          if (!mediaId)
+            return new Response(
+              JSON.stringify({
+                message: 'Internal Server Error',
+                reason: 'Unable to create media',
+              }),
+              {
+                status: 500,
+              },
+            );
+          mediaIds.push(mediaId);
           // convert all images to variants and then upload them to convex
           // after uploaded completed, store the storageId
-          await processImage(file).then(async (processedImages) => {
+          // don't await, process in bg
+          processImage(file).then(async (processedImages) => {
             for (const image of processedImages) {
               let arrayBuffer: ArrayBuffer;
               if (image.buffer instanceof Buffer) {
@@ -162,36 +178,41 @@ export const ServerRoute = createServerFileRoute('/api/media/').methods({
                 headers: { 'Content-Type': image.mimeType },
                 body: new Blob([arrayBuffer], { type: image.mimeType }),
               });
-              let { storageId } = await uploadResults.json();
-              // check for duplicates using sha256
-
-              const uploadedMetadata = await convex.query(
-                api.media.getMetadata,
-                { storageId },
-              );
-
-              if (uploadedMetadata) {
-                const storedFiles = await convex.query(
-                  api.media.getFilesBySha256,
-                  { sha256: uploadedMetadata.sha256 },
-                );
-
-                if (storedFiles.length) {
-                  // delete created storage then use found file as new storage id
-                  await convex.mutation(api.media.deleteStorage, { storageId });
-                  storageId = storedFiles[0]._id;
-                }
-              }
-              // upload to convex in bg
-              const mediaId = await convex.mutation(api.media.mutateMedia, {
-                storageId,
+              const { storageId }: { storageId: Id<'_storage'> } =
+                await uploadResults.json();
+              const storageUrl = await convex.query(api.storage.getStorageUrl, {
+                _id: storageId,
+              });
+              // create media variant
+              const variantId: FunctionReturnType<
+                typeof api.mediaVariants.mutateMediaVariant
+              > = await convex.mutation(api.mediaVariants.mutateMediaVariant, {
                 fileName: image.filename,
                 width: image.width,
                 height: image.height,
+                mimeType: image.mimeType,
+                storageId,
+                url: storageUrl,
               });
-              if (mediaId) {
-                mediaIds.push(mediaId);
-              }
+              // create relation from media to media variants
+              convex
+                .mutation(api.mediaMediaVariants.createMediaMediaVariant, {
+                  mediaId,
+                  mediaVariantId: variantId,
+                })
+                .then(async () => {
+                  await convex.mutation(api.media.updateMediaStatus, {
+                    _id: mediaId,
+                    status: 'READY',
+                  });
+                })
+                .catch(async (err) => {
+                  console.log(err);
+                  await convex.mutation(api.media.updateMediaStatus, {
+                    _id: mediaId,
+                    status: 'FAILED',
+                  });
+                });
             }
           });
         }

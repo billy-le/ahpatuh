@@ -1,7 +1,6 @@
 import { ConvexError, v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { getAuthUser, getBusiness } from './_utils';
-import { api } from './_generated/api';
 
 export const getCategories = query({
   args: {},
@@ -64,17 +63,13 @@ export const deleteCategory = mutation({
       throw new ConvexError({ message: 'Category not found', code: 404 });
     if (category.businessId !== business._id)
       throw new ConvexError({ message: 'Invalid Category Id', code: 403 });
-    const servicesWithCategory = await ctx.db.query('services').collect();
-    for (const service of servicesWithCategory) {
-      if (service.categoryIds?.length) {
-        const withoutCategory = service.categoryIds.filter(
-          (id) => id !== category._id,
-        );
-        await ctx.runMutation(api.services.mutateService, {
-          _id: service._id,
-          categoryIds: withoutCategory,
-        });
-      }
+    const serviceCategories = await ctx.db
+      .query('serviceCategories')
+      .withIndex('by_categoryId', (q) => q.eq('categoryId', category._id))
+      .collect();
+    // hard delete
+    for (const serviceCategory of serviceCategories) {
+      await ctx.db.delete(serviceCategory._id);
     }
 
     return await ctx.db.delete(category._id);

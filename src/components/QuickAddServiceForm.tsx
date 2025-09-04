@@ -31,7 +31,6 @@ const serviceFormSchema = z.object({
     .refine((value) => !isNaN(parseFloat(value)), {
       message: 'Price must be a number',
     }),
-  categoryIds: z.array(z.string()).default([]),
 });
 
 export function QuickAddServiceForm({
@@ -45,7 +44,6 @@ export function QuickAddServiceForm({
       name: service?.name ?? '',
       description: service?.description,
       price: service?.price?.toString() ?? '',
-      categoryIds: service?.categoryIds ?? [],
     },
   });
 
@@ -54,6 +52,7 @@ export function QuickAddServiceForm({
       ...values,
       _id: service?._id,
       price: parseFloat(values.price),
+      categoryIds: [],
     }).then(() => onSuccess());
   };
 
