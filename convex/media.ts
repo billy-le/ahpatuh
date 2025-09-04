@@ -1,6 +1,7 @@
 import { ConvexError, v } from 'convex/values';
 import { mutation, internalQuery } from './_generated/server';
 import { getAuthUser, getBusiness } from './_utils';
+import { internal } from './_generated/api';
 
 export const generateUploadUrl = mutation({
   args: {},
@@ -93,10 +94,20 @@ export const deleteMedia = mutation({
       .withIndex('by_mediaId', (q) => q.eq('mediaId', media._id))
       .collect();
     // delete media and media variants relations
-    await Promise.all(mediaMediaVariants.map((m) => ctx.db.delete(m._id)));
+    await Promise.all(
+      mediaMediaVariants.map((m) =>
+        ctx.runMutation(internal.mediaMediaVariants.deleteMediaMediaVariant, {
+          _id: m._id,
+        }),
+      ),
+    );
     // delete all variants
     await Promise.all(
-      mediaMediaVariants.map((m) => ctx.db.delete(m.mediaVariantId)),
+      mediaMediaVariants.map((m) =>
+        ctx.runMutation(internal.mediaVariants.deleteMediaVariant, {
+          _id: m.mediaVariantId,
+        }),
+      ),
     );
     return await ctx.db.delete(args._id);
   },
