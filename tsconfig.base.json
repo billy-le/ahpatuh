@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "target": "ES2022",
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "noEmit": true,
+    "declaration": true,
+    "composite": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "paths": {
+      "@ahpatuh/ui": ["./packages/ui/index.ts"],
+      "@ahpatuh/utils": ["./packages/utils/index.ts"],
+      "@ahpatuh/convex/*": ["./packages/backend/convex/*"]
+    },
+    "types": ["node"]
+  },
+  "excludes": ["node_modules", "dist"]
+}

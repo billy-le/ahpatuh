@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["**/*.ts", "**/*.tsx"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@ahpatuh/convex/*": ["../../packages/backend/convex/*"],
+      "@ahpatuh/ui": ["../../packages/ui/index.ts"],
+      "@ahpatuh/utils": ["../../packages/utils/index.ts"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/components/*": ["./src/components/*"]
+    }
+  }
+}
