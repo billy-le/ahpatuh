@@ -7,7 +7,6 @@ import { convex } from '@convex-dev/better-auth/plugins';
 import { requireEnv } from '@convex-dev/better-auth/utils';
 import { betterAuth } from 'better-auth';
 import { betterAuthComponent } from './auth';
-
 const siteUrl = requireEnv('SITE_URL');
 
 type GenericCtx = GenericMutationCtx<DataModel> | GenericQueryCtx<DataModel>;
