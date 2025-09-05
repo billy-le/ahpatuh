@@ -22,6 +22,4 @@ yarn.lock
 .tanstack
 
 .env.local
-
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
+*.tsbuildinfo

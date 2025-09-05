@@ -1,3 +1,9 @@
 {
-  "extends": "../../tsconfig.base.json"
+  "extends": "../../tsconfig.base.json",
+  "include": ["./components"],
+  "compilerOptions": {
+    "paths": {
+      "@ahpatuh/utils": ["../utils"]
+    }
+  }
 }

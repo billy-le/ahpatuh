@@ -25,5 +25,11 @@
     },
     "types": ["node"]
   },
-  "excludes": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "./apps/app" },
+    { "path": "./packages/backend" },
+    { "path": "./packages/ui" },
+    { "path": "./packages/util" }
+  ]
 }
