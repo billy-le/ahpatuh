@@ -43,6 +43,7 @@ function Employees() {
           <Popover open={open}>
             <PopoverTrigger asChild>
               <Button
+                size='icon'
                 disabled={
                   !business ||
                   isBusinessDetailsPending ||

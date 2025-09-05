@@ -1,2 +1,4 @@
 @import 'tailwindcss';
 @import '@ahpatuh/ui/globals.css';
+
+@source "../../node_modules/@ahpatuh/ui";
