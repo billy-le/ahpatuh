@@ -7,6 +7,7 @@
   "author": "",
   "license": "MIT",
   "scripts": {
+    "dev:app": "pnpm -r --parallel dev",
     "prepare": "husky"
   },
   "dependencies": {
