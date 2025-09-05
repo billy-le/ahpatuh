@@ -1,4 +1,4 @@
-import { Id } from 'convex/_generated/dataModel';
+import { Id } from '@ahpatuh/convex/_generated/dataModel';
 import { endOfWeek, startOfWeek, eachDayOfInterval } from 'date-fns';
 import {
   Form,

@@ -30,7 +30,7 @@ import {
 } from 'date-fns';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { useMemo, useState } from 'react';
 import { useMutation } from 'convex/react';
 import { DataTable } from '../DataTable';

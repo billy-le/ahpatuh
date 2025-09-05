@@ -49,7 +49,7 @@ function Dashboard() {
         Hello, {user?.name}
       </Text>
       <OnboardingForm businessDetails={businessDetails} onSuccess={onSuccess} />
-      {businessDetails && (
+      {businessDetails?.address && businessDetails?.businessHours && (
         <section className='grid grid-cols-6 gap-8'>
           <div>
             <Text el='h2' className='mb-2'>
