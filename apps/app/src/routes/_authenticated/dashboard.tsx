@@ -49,31 +49,32 @@ function Dashboard() {
         Hello, {user?.name}
       </Text>
       <OnboardingForm businessDetails={businessDetails} onSuccess={onSuccess} />
-      {businessDetails?.address && businessDetails?.businessHours && (
-        <section className='grid grid-cols-6 gap-8'>
-          <div>
-            <Text el='h2' className='mb-2'>
-              Summary
-            </Text>
-            <div className='h-96 border border-gray-300 shadow rounded-md p-6'>
-              <Text el='p'>Today's Profit</Text>
-              <p>$1,230.88</p>
+      {businessDetails?.address &&
+        businessDetails?.businessHours?.length > 0 && (
+          <section className='grid grid-cols-6 gap-8'>
+            <div>
+              <Text el='h2' className='mb-2'>
+                Summary
+              </Text>
+              <div className='h-96 border border-gray-300 shadow rounded-md p-6'>
+                <Text el='p'>Today's Profit</Text>
+                <p>$1,230.88</p>
+              </div>
             </div>
-          </div>
-          <div className='col-span-3'>
-            <Text el='h2' className='mb-2'>
-              Schedule
-            </Text>
-            <div className='h-96 border border-gray-300 shadow rounded-md'></div>
-          </div>
-          <div className='col-span-2'>
-            <Text el='h2' className='mb-2'>
-              Performance
-            </Text>
-            <div className='h-96 border border-gray-300 shadow rounded-md'></div>
-          </div>
-        </section>
-      )}
+            <div className='col-span-3'>
+              <Text el='h2' className='mb-2'>
+                Schedule
+              </Text>
+              <div className='h-96 border border-gray-300 shadow rounded-md'></div>
+            </div>
+            <div className='col-span-2'>
+              <Text el='h2' className='mb-2'>
+                Performance
+              </Text>
+              <div className='h-96 border border-gray-300 shadow rounded-md'></div>
+            </div>
+          </section>
+        )}
     </Layout>
   );
 }

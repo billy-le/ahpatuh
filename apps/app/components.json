@@ -12,7 +12,7 @@
   },
   "aliases": {
     "utils": "@ahpatuh/utils",
-    "ui": "@ahpatuh/ui"
+    "ui": "@ahpatuh/ui/components"
   },
   "iconLibrary": "lucide"
 }

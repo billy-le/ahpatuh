@@ -43,14 +43,9 @@ function PositionsPage() {
       <header className='flex justify-between'>
         <div className='flex items-center gap-4'>
           <Text el='h1'>Positions</Text>
-          <Popover open={open}>
+          <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-              <Button
-                size='icon'
-                onClick={() => {
-                  setOpen(!open);
-                }}
-              >
+              <Button size='icon'>
                 <PlusIcon />
               </Button>
             </PopoverTrigger>

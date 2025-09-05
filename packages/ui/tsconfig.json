@@ -2,8 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "include": ["./components"],
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "@ahpatuh/utils": ["../utils"]
+      "@ahpatuh/utils": ["../utils"],
+      "@components/*": ["./components/*"]
     }
   }
 }
