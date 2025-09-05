@@ -12,8 +12,8 @@ import {
   Input,
 } from '@ahpatuh/ui';
 import { useMutation } from 'convex/react';
-import { api } from 'convex/_generated/api';
-import { Id } from 'convex/_generated/dataModel';
+import { api } from '@ahpatuh/convex/_generated/api';
+import { Id } from '@ahpatuh/convex/_generated/dataModel';
 
 interface BusinessFormProps {
   onSuccess: (businessId: Id<'businesses'>) => void;

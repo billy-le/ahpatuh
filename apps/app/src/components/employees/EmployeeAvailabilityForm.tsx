@@ -14,7 +14,7 @@ import {
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Doc } from 'convex/_generated/dataModel';
+import { Doc } from '@ahpatuh/convex/_generated/dataModel';
 import { MonthCalender } from '../MonthCalendar';
 import {
   eachDayOfInterval,

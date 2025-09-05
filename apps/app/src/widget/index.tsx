@@ -15,7 +15,6 @@ export function Widget() {
   const { data, isPending, error } = useQuery({
     queryKey: ['bookings'],
     queryFn: async function () {
-      console.log(import.meta.env);
       await fetch(import.meta.env.VITE_BASE_URL + '/api/booking').then(
         (res) => {
           return res.json();

@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from '@tanstack/react-router';
 import { Layout } from '@/components/Layout';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
 import { Loader } from '@ahpatuh/ui';

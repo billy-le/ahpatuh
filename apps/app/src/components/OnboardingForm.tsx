@@ -1,4 +1,4 @@
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { BusinessForm } from './BusinessForm';
 import { AddressForm } from './AddressForm';
 import { BusinessHoursForm } from './BusinessHoursForm';

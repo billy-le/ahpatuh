@@ -1,4 +1,4 @@
-import { Id } from 'convex/_generated/dataModel';
+import { Id } from '@ahpatuh/convex/_generated/dataModel';
 
 type Lang = { _id: Id<'languages'>; value: string; name: string };
 

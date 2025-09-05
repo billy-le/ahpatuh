@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table';
 import type { FunctionReturnType } from 'convex/server';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { EllipsisVerticalIcon, Trash2, PencilIcon } from 'lucide-react';
 import { useMutation } from 'convex/react';
 import {

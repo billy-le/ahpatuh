@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { LangSelector } from '@/components/LangSelector';
 import { Layout } from '@/components/Layout';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { useMutation } from 'convex/react';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';

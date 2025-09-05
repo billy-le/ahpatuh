@@ -4,6 +4,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@ahpatuh/convex/*": ["../../packages/backend/convex/*"],
       "@ahpatuh/ui": ["../../packages/ui/index.ts"],
       "@ahpatuh/utils": ["../../packages/utils/index.ts"],
       "@/lib/*": ["./src/lib/*"],

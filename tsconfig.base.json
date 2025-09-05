@@ -20,7 +20,8 @@
     "declarationMap": true,
     "paths": {
       "@ahpatuh/ui": ["./packages/ui/index.ts"],
-      "@ahpatuh/utils": ["./packages/utils/index.ts"]
+      "@ahpatuh/utils": ["./packages/utils/index.ts"],
+      "@ahpatuh/convex/*": ["./packages/backend/convex/*"]
     },
     "types": ["node"]
   },

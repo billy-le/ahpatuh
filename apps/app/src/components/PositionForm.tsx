@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import type { FunctionReturnType } from 'convex/server';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
@@ -15,7 +15,7 @@ import {
   Textarea,
 } from '@ahpatuh/ui';
 import { useMutation } from 'convex/react';
-import { Id } from 'convex/_generated/dataModel';
+import { Id } from '@ahpatuh/convex/_generated/dataModel';
 
 interface PositionFormProps {
   position?: FunctionReturnType<typeof api.roles.getRoles>[number];

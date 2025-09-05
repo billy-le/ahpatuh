@@ -1,7 +1,7 @@
 import { createMiddleware, createServerFn, json } from '@tanstack/react-start';
 import { getWebRequest } from '@tanstack/react-start/server';
-import { createAuth } from '@/lib/auth';
-import type { GenericCtx } from 'convex/_generated/server';
+import { createAuth } from '@ahpatuh/convex/_utils';
+import type { GenericCtx } from '@ahpatuh/convex/_generated/server';
 
 export const getSession = createServerFn({ method: 'GET' }).handler(
   async ({ context }) => {

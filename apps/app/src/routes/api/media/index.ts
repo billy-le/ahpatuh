@@ -2,8 +2,8 @@ import { createServerFileRoute } from '@tanstack/react-start/server';
 import { fetchAuth } from 'src/routes/__root';
 import { z } from 'zod';
 import sharp from 'sharp';
-import { Id } from 'convex/_generated/dataModel';
-import { api } from 'convex/_generated/api';
+import { Id } from '@ahpatuh/convex/_generated/dataModel';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { convex } from 'src/services/convex-http-client';
 import { FunctionReturnType } from 'convex/server';
 

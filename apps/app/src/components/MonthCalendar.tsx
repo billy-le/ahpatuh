@@ -18,7 +18,7 @@ import {
   draggable,
   dropTargetForElements,
 } from '@atlaskit/pragmatic-drag-and-drop/element/adapter';
-import { Id } from 'convex/_generated/dataModel';
+import { Id } from '@ahpatuh/convex/_generated/dataModel';
 
 type SingleDate = {
   date: Date;

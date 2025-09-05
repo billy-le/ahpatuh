@@ -22,10 +22,10 @@ import {
 } from '@ahpatuh/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Doc, Id } from 'convex/_generated/dataModel';
+import { Doc, Id } from '@ahpatuh/convex/_generated/dataModel';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { useEffect, useState } from 'react';
 import { ChevronsUpDownIcon, CheckIcon } from 'lucide-react';
 import { cx } from '@ahpatuh/utils';

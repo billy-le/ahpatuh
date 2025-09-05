@@ -13,8 +13,8 @@ import {
   Button,
 } from '@ahpatuh/ui';
 import { useMutation } from 'convex/react';
-import { api } from 'convex/_generated/api';
-import { Doc } from 'convex/_generated/dataModel';
+import { api } from '@ahpatuh/convex/_generated/api';
+import { Doc } from '@ahpatuh/convex/_generated/dataModel';
 
 interface QuickAddServiceFormProps {
   service?: Doc<'services'>;

@@ -11,7 +11,7 @@ import {
 import { UserPlus, Search } from 'lucide-react';
 import { QuickAddEmployeeForm } from '@/components/QuickAddEmployeeForm';
 import { DataTable } from '@/components/DataTable';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { useState } from 'react';
 import { employeeColumns } from '@/components/employees/columns';
 import { useQuery } from '@tanstack/react-query';

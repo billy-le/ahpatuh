@@ -14,7 +14,7 @@ import {
   Combobox,
 } from '@ahpatuh/ui';
 import { useConvex, useMutation } from 'convex/react';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';

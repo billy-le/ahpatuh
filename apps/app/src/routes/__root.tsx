@@ -12,7 +12,6 @@ import { DefaultCatchBoundary } from '../components/DefaultCatchBoundary';
 import { NotFound } from '../components/NotFound';
 import appCss from '../styles/app.css?url';
 import { seo } from '../utils/seo';
-
 import { createServerFn } from '@tanstack/react-start';
 import { QueryClient } from '@tanstack/react-query';
 import { ConvexQueryClient } from '@convex-dev/react-query';

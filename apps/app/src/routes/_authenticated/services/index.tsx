@@ -1,7 +1,7 @@
 import { convexQuery } from '@convex-dev/react-query';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { api } from 'convex/_generated/api';
+import { api } from '@ahpatuh/convex/_generated/api';
 import { PlusIcon } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { QuickAddServiceForm } from '@/components/QuickAddServiceForm';
