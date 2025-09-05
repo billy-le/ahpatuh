@@ -11,7 +11,9 @@ const siteUrl = requireEnv('SITE_URL');
 
 type GenericCtx = GenericMutationCtx<DataModel> | GenericQueryCtx<DataModel>;
 
-export const createAuth = (ctx: Ctx) =>
+export const createAuth: (ctx: Ctx) => ReturnType<typeof betterAuth> = (
+  ctx: Ctx,
+) =>
   // Configure your Better Auth instance here
   betterAuth({
     // All auth requests will be proxied through your TanStack Start server

@@ -183,6 +183,9 @@ export const ServerRoute = createServerFileRoute('/api/media/').methods({
               const storageUrl = await convex.query(api.storage.getStorageUrl, {
                 _id: storageId,
               });
+              if (!storageUrl) {
+                throw new Error('Storage URL not found');
+              }
               // create media variant
               const variantId: FunctionReturnType<
                 typeof api.mediaVariants.mutateMediaVariant
