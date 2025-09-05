@@ -1,0 +1,17 @@
+{
+  "name": "@ahpatuh/utils",
+  "version": "0.0.1",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cva": "1.0.0-beta.4",
+    "tailwind-merge": "^3.3.1"
+  }
+}

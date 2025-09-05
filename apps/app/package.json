@@ -1,0 +1,30 @@
+{
+  "name": "@ahpatuh/app",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently --kill-others \"vite dev\" \"convex dev\"",
+    "build": "vite build && tsc --noEmit",
+    "start": "vite start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@ahpatuh/ui": "workspace:*",
+    "@ahpatuh/utils": "workspace:*",
+    "convex": "^1.26.2",
+    "convex-helpers": "^0.1.104"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  }
+}
