@@ -6,7 +6,6 @@ import { useMutation } from 'convex/react';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
 import { Loader } from '@ahpatuh/ui';
-import { Widget } from 'src/widget';
 export const Route = createFileRoute('/_authenticated/settings')({
   component: Settings,
 });
@@ -52,7 +51,6 @@ function Settings() {
           />
         </>
       )}
-      <Widget />
     </Layout>
   );
 }
