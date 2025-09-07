@@ -8,7 +8,7 @@ export function Text({ el, children, className }: TextProps) {
   switch (el) {
     case 'h1':
       return (
-        <h1 className={cx('text-3xl font-medium', className)}>{children}</h1>
+        <h1 className={cx('text-2xl font-medium', className)}>{children}</h1>
       );
     case 'h2':
       return <h2 className={cx('text-2xl', className)}>{children}</h2>;

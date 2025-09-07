@@ -6,12 +6,12 @@ import { getAuthUser, getBusiness } from './_utils';
 export const mutateAddress = mutation({
   args: {
     _id: v.optional(v.id('addresses')),
-    street1: v.string(),
+    street1: v.optional(v.string()),
     street2: v.optional(v.string()),
-    city: v.string(),
-    state: v.string(),
-    country: v.string(),
-    postalCode: v.string(),
+    city: v.optional(v.string()),
+    state: v.optional(v.string()),
+    country: v.optional(v.string()),
+    postalCode: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);
@@ -23,17 +23,30 @@ export const mutateAddress = mutation({
       if (address.businessId !== business._id)
         throw new ConvexError({ message: 'Invalid Address Id', code: 403 });
       const { _id, ...params } = args;
-      return await ctx.db.patch(_id, {
-        ...params,
-        updatedAt: new Date().toISOString(),
-      });
+      return await ctx.db
+        .patch(_id, {
+          ...params,
+          updatedAt: new Date().toISOString(),
+        })
+        .then(() => address._id);
     }
 
-    return ctx.db.insert('addresses', {
-      ...args,
-      businessId: business._id,
-      updatedAt: new Date().toISOString(),
-    });
+    if (!args.street1)
+      throw new ConvexError({ message: 'Street 1 missing', code: 400 });
+    else if (!args.city)
+      throw new ConvexError({ message: 'City missing', code: 400 });
+    else if (!args.state)
+      throw new ConvexError({ message: 'State missing', code: 400 });
+    else if (!args.country)
+      throw new ConvexError({ message: 'Country missing', code: 400 });
+    else if (!args.postalCode)
+      throw new ConvexError({ message: 'Postal Code missing', code: 400 });
+    else
+      return ctx.db.insert('addresses', {
+        ...args,
+        businessId: business._id,
+        updatedAt: new Date().toISOString(),
+      });
   },
 });
 
