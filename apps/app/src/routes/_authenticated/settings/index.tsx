@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
-import { LangSelector } from '@/components/LangSelector';
 import { Layout } from '@/components/Layout';
 import { api } from '@ahpatuh/convex/_generated/api';
-import { useMutation } from 'convex/react';
 import { useQuery } from '@tanstack/react-query';
 import { convexQuery } from '@convex-dev/react-query';
 import {
@@ -13,6 +11,7 @@ import {
   DropdownMenuItem,
 } from '@ahpatuh/ui';
 import { Text } from '@/components/Text';
+import { UserProfileForm } from '@/components/UserProfileForm';
 
 import { ChevronsUpDownIcon } from 'lucide-react';
 export const Route = createFileRoute('/_authenticated/settings/')({
@@ -20,19 +19,13 @@ export const Route = createFileRoute('/_authenticated/settings/')({
 });
 
 function Settings() {
-  const updateUser = useMutation(api.users.updateUser);
   const {
     data: user,
     isPending: isUserPending,
     error: userError,
   } = useQuery(convexQuery(api.users.getUser, {}));
-  const {
-    data: languages = [],
-    isPending: isLangaugesPending,
-    error: languagesError,
-  } = useQuery(convexQuery(api.languages.getLanguages, {}));
 
-  if (isUserPending || isLangaugesPending) {
+  if (isUserPending) {
     return (
       <Layout className='flex items-center justify-center'>
         <Loader />
@@ -40,7 +33,7 @@ function Settings() {
     );
   }
 
-  if (userError || languagesError) {
+  if (userError) {
     return <Layout>Something went wrong</Layout>;
   }
 
@@ -60,13 +53,7 @@ function Settings() {
         </DropdownMenuContent>
       </DropdownMenu>
       <div>
-        <LangSelector
-          defaultLang={user?.language}
-          langs={languages}
-          onLangChange={(lang) => {
-            updateUser({ langId: lang._id });
-          }}
-        />
+        <UserProfileForm user={user} />
       </div>
     </Layout>
   );

@@ -224,7 +224,7 @@ export default defineSchema({
     langId: v.optional(v.id('languages')),
     email: v.string(),
     phone: v.optional(v.string()),
-    image: v.optional(v.string()),
+    mediaId: v.optional(v.id('media')),
     timeZone: v.optional(v.string()),
   }),
   businesses: defineTable(business).index('by_userId', ['userId']),
