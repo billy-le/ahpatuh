@@ -1,5 +1,5 @@
 import { query, mutation } from './_generated/server';
-import { v } from 'convex/values';
+import { ConvexError, v } from 'convex/values';
 import { omit } from 'ramda';
 import { getAuthUser, getBusiness } from './_utils';
 
@@ -47,5 +47,29 @@ export const getBusinessDetails = query({
         omit(['_creationTime', 'updatedAt'], hours),
       ),
     };
+  },
+});
+
+export const updateBusiness = mutation({
+  args: {
+    _id: v.id('businesses'),
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    domain: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await getAuthUser(ctx);
+    const business = await getBusiness(ctx, user);
+    if (args._id !== business._id)
+      throw new ConvexError({ message: 'Invalid Business Id', code: 403 });
+
+    const { _id, ...params } = args;
+    return await ctx.db
+      .patch(business._id, {
+        ...params,
+        updatedAt: new Date().toISOString(),
+      })
+      .then(() => _id);
   },
 });

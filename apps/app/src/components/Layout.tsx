@@ -120,7 +120,7 @@ const NavMenuItem = ({
 export function Layout({ children, className }: LayoutProps) {
   const router = useRouter();
   return (
-    <div className='flex min-h-dvh bg-apt-hot-pink'>
+    <div className='flex h-dvh bg-apt-hot-pink'>
       <section className='py-10 flex flex-col justify-between shrink-0 min-w-80 border-r-2 border-black'>
         <nav className='px-4'>
           <ul className='space-y-4'>
@@ -161,7 +161,7 @@ export function Layout({ children, className }: LayoutProps) {
           </li>
         </ul>
       </section>
-      <main className='m-6 py-4 px-6 rounded-md grow bg-white'>
+      <main className='m-6 py-4 px-6 rounded-md grow bg-white max-h-full overflow-y-auto'>
         <div className={className}>{children}</div>
       </main>
     </div>
