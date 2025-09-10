@@ -1,7 +1,16 @@
 import { v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import { internalQuery, mutation, query } from './_generated/server';
 import { Doc } from './_generated/dataModel';
 import { getAuthUser } from './_utils';
+
+export const internalGetUser = internalQuery({
+  args: {
+    _id: v.id('users'),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args._id);
+  },
+});
 
 export const getUser = query({
   args: {},

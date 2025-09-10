@@ -19,7 +19,8 @@ export const mutateBooking = mutation({
     _id: v.optional(v.id('bookings')),
     customerId: v.id('customers'),
     bookingServiceIds: v.array(v.id('bookingServices')),
-    date: v.string(),
+    startDate: v.string(),
+    endDate: v.string(),
     updatedAt: v.string(),
     status: v.union(
       v.literal('REQUESTED'),

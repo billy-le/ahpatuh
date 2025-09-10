@@ -15,8 +15,11 @@ import type * as bookingServices from "../bookingServices.js";
 import type * as bookings from "../bookings.js";
 import type * as business from "../business.js";
 import type * as businessHours from "../businessHours.js";
+import type * as business_domains from "../business_domains.js";
 import type * as category from "../category.js";
 import type * as customers from "../customers.js";
+import type * as domains from "../domains.js";
+import type * as domains_verify from "../domains_verify.js";
 import type * as employeeUnavailability from "../employeeUnavailability.js";
 import type * as employees from "../employees.js";
 import type * as http from "../http.js";
@@ -34,6 +37,7 @@ import type * as services from "../services.js";
 import type * as shifts from "../shifts.js";
 import type * as storage from "../storage.js";
 import type * as users from "../users.js";
+import type * as widget from "../widget.js";
 
 import type {
   ApiFromModules,
@@ -57,8 +61,11 @@ declare const fullApi: ApiFromModules<{
   bookings: typeof bookings;
   business: typeof business;
   businessHours: typeof businessHours;
+  business_domains: typeof business_domains;
   category: typeof category;
   customers: typeof customers;
+  domains: typeof domains;
+  domains_verify: typeof domains_verify;
   employeeUnavailability: typeof employeeUnavailability;
   employees: typeof employees;
   http: typeof http;
@@ -76,6 +83,7 @@ declare const fullApi: ApiFromModules<{
   shifts: typeof shifts;
   storage: typeof storage;
   users: typeof users;
+  widget: typeof widget;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
