@@ -1,8 +1,8 @@
-import { query } from './_generated/server';
+import { mutation, query } from './_generated/server';
 import { ConvexError } from 'convex/values';
 import { v } from 'convex/values';
 import { omit, pick } from 'ramda';
-import { Doc } from './_generated/dataModel';
+import type { Doc } from './_generated/dataModel';
 
 export const getBusiness = query({
   args: {
@@ -75,6 +75,7 @@ export const getEmployees = query({
       Doc<'employees'>,
       'image' | 'firstName' | 'lastName' | '_id'
     > & {
+      position: Pick<Doc<'roles'>, 'name'> | null;
       shifts: Pick<Doc<'shifts'>, 'day' | 'dayOff' | 'startTime' | 'endTime'>[];
       unavailabilities: Pick<
         Doc<'employeeUnavailabilities'>,
@@ -82,6 +83,10 @@ export const getEmployees = query({
       >[];
     })[] = [];
     for (const employee of employees) {
+      const role = employee.positionId
+        ? await ctx.db.get(employee.positionId)
+        : null;
+
       const shifts = await ctx.db
         .query('shifts')
         .withIndex('by_employeeId', (q) => q.eq('employeeId', employee._id))
@@ -99,6 +104,7 @@ export const getEmployees = query({
         firstName: employee.firstName,
         lastName: employee.lastName,
         image: employee.image,
+        position: role,
         shifts: shifts.map((shift) =>
           pick(['day', 'dayOff', 'startTime', 'endTime'], shift),
         ),
@@ -111,5 +117,102 @@ export const getEmployees = query({
     }
 
     return employeesWithDetails;
+  },
+});
+
+export const getServices = query({
+  args: {
+    businessId: v.id('businesses'),
+    positionId: v.optional(v.id('roles')),
+  },
+  handler: async (ctx, args) => {
+    const allServices = await ctx.db
+      .query('services')
+      .withIndex('by_businessId', (q) => q.eq('businessId', args.businessId))
+      .collect()
+      .then((services) =>
+        services.map((s) =>
+          pick(['_id', 'name', 'description', 'price', 'durationInMinutes'], s),
+        ),
+      );
+    if (args.positionId) {
+      const roleServices = await ctx.db
+        .query('roleServices')
+        .withIndex('by_roleId', (q) => q.eq('roleId', args.positionId!))
+        .collect();
+      const services = await Promise.all(
+        roleServices.map((rs) => ctx.db.get(rs.serviceId)),
+      );
+      const nonNullServices = services.filter(
+        (service): service is Doc<'services'> => Boolean(service),
+      );
+      return nonNullServices.length
+        ? nonNullServices.map((s) =>
+            pick(
+              ['_id', 'name', 'description', 'price', 'durationInMinutes'],
+              s,
+            ),
+          )
+        : allServices;
+    }
+
+    return allServices;
+  },
+});
+
+export const createCustomer = mutation({
+  args: {
+    businessId: v.id('businesses'),
+    name: v.string(),
+    email: v.string(),
+    phone: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const customer = await ctx.db
+      .query('customers')
+      .withIndex('by_business_customer', (q) =>
+        q
+          .eq('businessId', args.businessId)
+          .eq('email', args.email)
+          .eq('phone', args.phone),
+      )
+      .unique();
+    if (customer) return customer._id;
+    return await ctx.db.insert('customers', {
+      ...args,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+});
+
+export const createBooking = mutation({
+  args: {
+    businessId: v.id('businesses'),
+    customerId: v.id('customers'),
+    startDate: v.string(),
+    endDate: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert('bookings', {
+      ...args,
+      status: 'REQUESTED',
+      updatedAt: new Date().toISOString(),
+    });
+  },
+});
+
+export const createBookingService = mutation({
+  args: {
+    employeeId: v.id('employees'),
+    customerId: v.id('customers'),
+    serviceId: v.id('services'),
+    bookingId: v.id('bookings'),
+    businessId: v.id('businesses'),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert('bookingServices', {
+      ...args,
+      updatedAt: new Date().toISOString(),
+    });
   },
 });
