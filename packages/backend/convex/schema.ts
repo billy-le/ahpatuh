@@ -5,9 +5,27 @@ export const business = {
   name: v.string(),
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
-  domain: v.optional(v.string()),
   userId: v.id('users'),
   updatedAt: v.string(),
+};
+
+export const domain = {
+  name: v.string(),
+  challengePublic: v.string(),
+  challengeSecret: v.string(),
+  publicKey: v.optional(v.string()),
+  isVerified: v.boolean(),
+  status: v.union(
+    v.literal('active'),
+    v.literal('inactive'),
+    v.literal('revoked'),
+  ),
+  updatedAt: v.string(),
+};
+
+export const businessDomain = {
+  businessId: v.id('businesses'),
+  domainId: v.id('domains'),
 };
 
 export const businessHour = {
@@ -42,8 +60,12 @@ export const role = {
   name: v.string(),
   description: v.optional(v.string()),
   businessId: v.id('businesses'),
-  serviceId: v.optional(v.array(v.id('services'))),
   updatedAt: v.string(),
+};
+
+export const roleServices = {
+  roleId: v.id('roles'),
+  serviceId: v.id('services'),
 };
 
 export const employee = {
@@ -99,6 +121,7 @@ export const employeeUnavailability = {
 export const service = {
   name: v.string(),
   description: v.optional(v.string()),
+  durationInMinutes: v.optional(v.number()),
   price: v.number(),
   businessId: v.id('businesses'),
   updatedAt: v.string(),
@@ -127,12 +150,13 @@ export const customer = {
 export const booking = {
   businessId: v.id('businesses'),
   customerId: v.id('customers'),
-  date: v.string(),
+  startDate: v.string(),
+  endDate: v.string(),
   updatedAt: v.string(),
   status: v.union(
     v.literal('REQUESTED'),
     v.literal('CONFIRMED'),
-    v.literal('PENDING'),
+    v.literal('CHECKED-IN'),
     v.literal('COMPLETED'),
     v.literal('CANCELED'),
     v.literal('NO SHOW'),
@@ -161,7 +185,6 @@ export const review = {
     v.literal(5),
   ),
   review: v.optional(v.string()),
-  serviceFeedbackIds: v.optional(v.array(v.id('serviceFeedbacks'))),
   updatedAt: v.string(),
 };
 
@@ -218,6 +241,11 @@ export const language = {
   value: v.string(),
 };
 
+export const widgetSetting = {
+  businessId: v.id('businessId'),
+  calendarView: v.union(v.literal('month'), v.literal('week')),
+};
+
 export default defineSchema({
   users: defineTable({
     name: v.optional(v.string()),
@@ -237,7 +265,8 @@ export default defineSchema({
     .index('unique_position', ['name', 'businessId']),
   employees: defineTable(employee)
     .index('by_businessId', ['businessId'])
-    .index('by_positionId', ['positionId']),
+    .index('by_positionId', ['positionId'])
+    .index('by_bookable', ['businessId', 'isBookable']),
   languages: defineTable(language).index('language', ['value']),
   shifts: defineTable(shift)
     .index('by_businessId', ['businessId'])
@@ -249,11 +278,15 @@ export default defineSchema({
     .index('by_business_id', ['businessId'])
     .index('by_employee_id', ['employeeId']),
   services: defineTable(service).index('by_businessId', ['businessId']),
-  customers: defineTable(customer).index('by_businessId', ['businessId']),
-  bookings: defineTable(booking).index('by_businessId', ['businessId']),
-  bookingServices: defineTable(bookingService).index('by_businessId', [
-    'businessId',
-  ]),
+  customers: defineTable(customer)
+    .index('by_businessId', ['businessId'])
+    .index('by_business_customer', ['businessId', 'email', 'phone']),
+  bookings: defineTable(booking)
+    .index('by_businessId', ['businessId'])
+    .index('by_date', ['businessId', 'startDate', 'endDate']),
+  bookingServices: defineTable(bookingService)
+    .index('by_businessId', ['businessId'])
+    .index('by_employee', ['employeeId']),
   reviews: defineTable(review).index('by_businessId', ['businessId']),
   serviceFeedbacks: defineTable(serviceFeedback)
     .index('by_businessId', ['businessId'])
@@ -277,4 +310,16 @@ export default defineSchema({
   serviceMedia: defineTable(serviceMedia)
     .index('by_serviceId', ['serviceId'])
     .index('by_mediaId', ['mediaId']),
+  domains: defineTable(domain)
+    .index('by_name_challengePublic', ['name', 'challengePublic'])
+    .index('by_name_publicKey', ['name', 'publicKey']),
+  businessDomains: defineTable(businessDomain)
+    .index('by_businessId', ['businessId'])
+    .index('by_domainId', ['domainId']),
+  roleServices: defineTable(roleServices)
+    .index('by_roleId', ['roleId'])
+    .index('by_serviceId', ['serviceId']),
+  widgetSettings: defineTable(widgetSetting).index('by_businessId', [
+    'businessId',
+  ]),
 });
