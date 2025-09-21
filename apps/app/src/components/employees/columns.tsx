@@ -102,7 +102,7 @@ export const employeeColumns: ColumnDef<
         {original.image ? (
           <img src={original.image} />
         ) : (
-          <div className='size-16 rounded-full bg-yellow-200 grid place-items-center'>
+          <div className='size-16 rounded-full bg-apt-hot-pink grid place-items-center'>
             <User2 size={32} />
           </div>
         )}
@@ -198,11 +198,11 @@ export const employeeColumns: ColumnDef<
             }}
           >
             <DialogHeader className='flex-row items-center gap-5'>
-              <div className='relative size-20 grid place-items-center rounded-full bg-yellow-200'>
+              <div className='relative size-20 grid place-items-center rounded-full bg-apt-primary'>
                 <User2 size={40} />
                 <button
                   type='button'
-                  className='absolute bottom-0 right-0 size-8 rounded-full bg-rose-200 grid place-items-center cursor-pointer'
+                  className='absolute bottom-0 right-0 size-8 rounded-full bg-black text-apt-secondary grid place-items-center cursor-pointer'
                 >
                   <Camera size={20} />
                 </button>

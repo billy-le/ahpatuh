@@ -52,7 +52,7 @@ export const getBookings = query({
       .withIndex('by_date', (q) =>
         q
           .eq('businessId', args.businessId)
-          .gte('startDate', new Date().toISOString()),
+          .gte('date', new Date().toISOString()),
       )
       .collect();
     return bookings;
@@ -75,7 +75,7 @@ export const getEmployees = query({
       Doc<'employees'>,
       'image' | 'firstName' | 'lastName' | '_id'
     > & {
-      position: Pick<Doc<'roles'>, 'name'> | null;
+      position: Pick<Doc<'roles'>, '_id' | 'name' | 'description'> | null;
       shifts: Pick<Doc<'shifts'>, 'day' | 'dayOff' | 'startTime' | 'endTime'>[];
       unavailabilities: Pick<
         Doc<'employeeUnavailabilities'>,
@@ -104,7 +104,7 @@ export const getEmployees = query({
         firstName: employee.firstName,
         lastName: employee.lastName,
         image: employee.image,
-        position: role,
+        position: role ? pick(['_id', 'name', 'description'], role) : null,
         shifts: shifts.map((shift) =>
           pick(['day', 'dayOff', 'startTime', 'endTime'], shift),
         ),
@@ -131,8 +131,11 @@ export const getServices = query({
       .withIndex('by_businessId', (q) => q.eq('businessId', args.businessId))
       .collect()
       .then((services) =>
-        services.map((s) =>
-          pick(['_id', 'name', 'description', 'price', 'durationInMinutes'], s),
+        services.map((service) =>
+          pick(
+            ['_id', 'name', 'description', 'price', 'durationInMinutes'],
+            service,
+          ),
         ),
       );
     if (args.positionId) {
@@ -147,15 +150,14 @@ export const getServices = query({
         (service): service is Doc<'services'> => Boolean(service),
       );
       return nonNullServices.length
-        ? nonNullServices.map((s) =>
+        ? nonNullServices.map((service) =>
             pick(
               ['_id', 'name', 'description', 'price', 'durationInMinutes'],
-              s,
+              service,
             ),
           )
         : allServices;
     }
-
     return allServices;
   },
 });
@@ -189,8 +191,7 @@ export const createBooking = mutation({
   args: {
     businessId: v.id('businesses'),
     customerId: v.id('customers'),
-    startDate: v.string(),
-    endDate: v.string(),
+    date: v.string(), // yyyy-MM-dd
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert('bookings', {
@@ -208,6 +209,8 @@ export const createBookingService = mutation({
     serviceId: v.id('services'),
     bookingId: v.id('bookings'),
     businessId: v.id('businesses'),
+    timeStart: v.string(), // iso,
+    timeEnd: v.string(), // iso,
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert('bookingServices', {

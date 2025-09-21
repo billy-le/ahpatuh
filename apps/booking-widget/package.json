@@ -13,6 +13,7 @@
     "convex": "^1.26.2",
     "convex-helpers": "^0.1.104",
     "date-fns": "^4.1.0",
+    "lucide-preact": "^0.544.0",
     "preact": "^10.27.0"
   },
   "devDependencies": {

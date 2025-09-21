@@ -2,7 +2,7 @@ import { query, mutation, internalQuery } from './_generated/server';
 import { ConvexError, v } from 'convex/values';
 import { omit } from 'ramda';
 import { getAuthUser, getBusiness } from './_utils';
-import { Doc, Id } from './_generated/dataModel';
+import { Doc } from './_generated/dataModel';
 import { api } from './_generated/api';
 
 export const internalGetBusiness = internalQuery({
@@ -26,19 +26,6 @@ export const createBusiness = mutation({
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);
-    let domainId: Id<'domains'> | null = null;
-    if (args.domain) {
-      await ctx.db
-        .query('domains')
-        .withIndex('by_name_challengePublic', (q) => q.eq('name', args.domain!))
-        .unique();
-
-      domainId = await ctx.runMutation(api.domains.mutateDomain, {
-        name: args.domain,
-        isVerfied: false,
-        status: 'active',
-      });
-    }
     const businessId = await ctx.db.insert('businesses', {
       name: args.name,
       email: args.email,
@@ -47,13 +34,29 @@ export const createBusiness = mutation({
       updatedAt: new Date().toISOString(),
     });
 
-    if (domainId) {
-      await ctx.db.insert('businessDomains', {
-        businessId,
-        domainId,
+    if (args.domain) {
+      await ctx.db
+        .query('domains')
+        .withIndex('by_name_challengePublic', (q) => q.eq('name', args.domain!))
+        .unique();
+
+      await ctx.runMutation(api.domains.mutateDomain, {
+        name: args.domain,
+        isVerfied: false,
+        status: 'active',
       });
     }
+
     return businessId;
+  },
+});
+
+export const getBusinessById = internalQuery({
+  args: {
+    _id: v.id('businesses'),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args._id);
   },
 });
 

@@ -1,6 +1,7 @@
 import { ConvexError, v } from 'convex/values';
 import { query, mutation } from './_generated/server';
 import { getAuthUser, getBusiness } from './_utils';
+import { booking } from './schema';
 
 export const getBookings = query({
   args: {},
@@ -13,23 +14,12 @@ export const getBookings = query({
       .collect();
   },
 });
-
 export const mutateBooking = mutation({
   args: {
     _id: v.optional(v.id('bookings')),
-    customerId: v.id('customers'),
-    bookingServiceIds: v.array(v.id('bookingServices')),
-    startDate: v.string(),
-    endDate: v.string(),
-    updatedAt: v.string(),
-    status: v.union(
-      v.literal('REQUESTED'),
-      v.literal('CONFIRMED'),
-      v.literal('PENDING'),
-      v.literal('COMPLETED'),
-      v.literal('CANCELED'),
-      v.literal('NO SHOW'),
-    ),
+    customerId: v.optional(v.id('customers')),
+    date: v.number(), // epoch
+    status: v.optional(booking.status),
     reviewId: v.optional(v.id('reviews')),
   },
   handler: async (ctx, args) => {

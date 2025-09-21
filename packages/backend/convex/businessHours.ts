@@ -1,6 +1,7 @@
 import { ConvexError, v } from 'convex/values';
-import { mutation, query } from './_generated/server';
+import { query } from './_generated/server';
 import { getAuthUser, getBusiness } from './_utils';
+import { triggerMutation } from './functions';
 
 export const getBusinessHours = query({
   args: {},
@@ -14,7 +15,7 @@ export const getBusinessHours = query({
   },
 });
 
-export const mutateBusinessHours = mutation({
+export const mutateBusinessHours = triggerMutation({
   args: {
     businessHours: v.array(
       v.object({
@@ -28,8 +29,8 @@ export const mutateBusinessHours = mutation({
           v.literal(5),
           v.literal(6),
         ),
-        timeOpen: v.optional(v.string()),
-        timeClose: v.optional(v.string()),
+        timeOpen: v.union(v.number(), v.null()),
+        timeClose: v.union(v.number(), v.null()),
         isClosed: v.boolean(),
       }),
     ),
@@ -38,7 +39,7 @@ export const mutateBusinessHours = mutation({
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);
     const business = await getBusiness(ctx, user);
-    // all or none
+    // update all or none
     if (args.businessHours.every((businessHour) => businessHour._id!)) {
       const businessHours = await Promise.all(
         args.businessHours.map((hour) => ctx.db.get(hour._id!)),

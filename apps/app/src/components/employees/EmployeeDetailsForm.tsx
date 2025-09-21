@@ -28,8 +28,6 @@ const employeeDetailsSchema = z.object({
   hiredDate: z.string().optional(),
   isActive: z.boolean(),
   isBookable: z.boolean(),
-  positionId: z.string().optional(),
-  shiftIds: z.array(z.string()),
 });
 
 export function EmployeeDetailsForm({

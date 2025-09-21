@@ -18,6 +18,7 @@ import { startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import z from 'zod';
 import { CheckIcon, XIcon } from 'lucide-react';
 import { api } from '@ahpatuh/convex/_generated/api';
+import { intToTimeString, timeStringToInt } from '@ahpatuh/utils';
 
 const start = startOfWeek(new Date());
 const end = endOfWeek(new Date());
@@ -38,12 +39,41 @@ const businessSettingsFormSchema = z.object({
     postalCode: z.string().optional(),
   }),
   businessHours: z.array(
-    z.object({
-      _id: z.string().optional(),
-      timeOpen: z.string().optional(),
-      timeClose: z.string().optional(),
-      isClosed: z.boolean().default(false),
-    }),
+    z
+      .object({
+        _id: z.string().optional(),
+        timeOpen: z.string().transform((value) => {
+          if (!value) return null;
+          return timeStringToInt(value);
+        }),
+        timeClose: z.string().transform((value) => {
+          if (!value) return null;
+          return timeStringToInt(value);
+        }),
+        isClosed: z.boolean().default(false),
+      })
+      .refine(
+        (bh) => {
+          if (bh.isClosed) return true;
+          if (bh.timeOpen == null) return false;
+          if (bh.timeClose == null) return false;
+          return true;
+        },
+        { message: 'Please enter an opening and closing time' },
+      )
+      .refine(
+        (bh) => {
+          if (bh.isClosed) return true;
+          if (bh.timeOpen == null) return false;
+          if (bh.timeClose == null) return false;
+
+          if (bh.timeOpen >= bh.timeClose) {
+            return false;
+          }
+          return true;
+        },
+        { message: 'Close time must be after open time' },
+      ),
   ),
 });
 
@@ -76,7 +106,14 @@ export function BusinessSettingsForm() {
       });
     }
     if (business.businessHours.length > 0) {
-      form.setValue('businessHours', business.businessHours);
+      form.setValue(
+        'businessHours',
+        business.businessHours.map((bh) => ({
+          ...bh,
+          timeOpen: bh.timeOpen != null ? intToTimeString(bh.timeOpen) : '',
+          timeClose: bh.timeClose != null ? intToTimeString(bh.timeClose) : '',
+        })),
+      );
     }
   }, [business]);
 
@@ -119,12 +156,26 @@ export function BusinessSettingsForm() {
       .then(() =>
         updateBusinessHours({
           businessHours: values.businessHours.map((bh, index) => ({
-            ...bh,
+            _id: bh._id,
+            timeOpen: bh.timeOpen != null ? bh.timeOpen : null,
+            timeClose: bh.timeClose != null ? bh.timeClose : null,
+            isClosed: bh.isClosed,
             dayOfWeek: index,
           })),
         }),
       );
   };
+
+  const businessHoursErrors = new Set<string>();
+
+  if (
+    form.formState.errors.businessHours instanceof Array &&
+    form.formState.errors.businessHours?.length
+  ) {
+    form.formState.errors.businessHours.forEach(({ message }) =>
+      businessHoursErrors.add(message),
+    );
+  }
 
   return (
     <Form {...form}>
@@ -322,18 +373,22 @@ export function BusinessSettingsForm() {
                     )}
                   </td>
                   <td className='py-2 px-3'>
-                    <Input
-                      type='time'
-                      className='w-fit mx-auto'
-                      {...form.register(`businessHours.${index}.timeOpen`)}
-                    />
+                    {!businessHour.isClosed && (
+                      <Input
+                        type='time'
+                        className='w-fit mx-auto'
+                        {...form.register(`businessHours.${index}.timeOpen`)}
+                      />
+                    )}
                   </td>
                   <td className='py-2 px-3'>
-                    <Input
-                      type='time'
-                      className='w-fit mx-auto'
-                      {...form.register(`businessHours.${index}.timeClose`)}
-                    />
+                    {!businessHour.isClosed && (
+                      <Input
+                        type='time'
+                        className='w-fit mx-auto'
+                        {...form.register(`businessHours.${index}.timeClose`)}
+                      />
+                    )}
                   </td>
                   <td className='py-2 px-3'>
                     <Checkbox
@@ -350,6 +405,11 @@ export function BusinessSettingsForm() {
               ))}
             </tbody>
           </table>
+          {Array.from(businessHoursErrors).map((m, i) => (
+            <div key={i} className='text-red-500'>
+              {m}
+            </div>
+          ))}
         </Card>
         <Button
           type='submit'

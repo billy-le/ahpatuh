@@ -21,6 +21,8 @@ export const mutateBookingService = mutation({
     customerId: v.id('customers'),
     bookingId: v.id('bookings'),
     serviceId: v.id('services'),
+    timeStart: v.number(),
+    timeEnd: v.number(),
   },
   handler: async (ctx, args) => {
     const user = await getAuthUser(ctx);

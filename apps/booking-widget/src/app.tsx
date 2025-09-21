@@ -1,6 +1,11 @@
 import { useConvex, useQuery } from 'convex/react';
 import { api } from '@ahpatuh/convex/_generated/api';
-import { isSameDay, isSameMinute, addMinutes } from 'date-fns';
+import {
+  isSameDay,
+  isSameMinute,
+  addMinutes,
+  format as formatDate,
+} from 'date-fns';
 import { useEffect, useState } from 'preact/hooks';
 import type { FunctionReturnType } from 'convex/server';
 import { WeeklyCalendar } from './components/weekly-calendar';
@@ -65,7 +70,7 @@ export function App() {
         : 'skip',
     ) ?? [];
 
-  const _bookings =
+  const bookings =
     useQuery(
       api.widget.getBookings,
       business
@@ -75,6 +80,8 @@ export function App() {
           }
         : 'skip',
     ) ?? [];
+
+  console.log(bookings, basket);
 
   return business ? (
     <>
@@ -91,6 +98,7 @@ export function App() {
           setSelectedEmployee(null);
           setServices([]);
           setSelectedService(null);
+          setBasket([]);
         }}
       />
       <div className='space-y-4'>
@@ -107,6 +115,7 @@ export function App() {
               setSelectedEmployee(null);
               setServices([]);
               setSelectedService(null);
+              setBasket([]);
             }}
           />
         )}
@@ -141,41 +150,40 @@ export function App() {
             basket={basket}
           />
         )}
-        {selectedService && (
+        {selectedService && selectedEmployee && (
           <button
             className='block border-2 border-black w-72 h-10'
             onClick={(e) => {
               e.preventDefault();
-              // add to basket
               setBasket((basket) => {
                 const newBasket = [...basket];
                 const hasService = newBasket.find(
                   (basket) =>
-                    basket.employee._id === selectedEmployee!._id &&
+                    basket.employee._id === selectedEmployee._id &&
                     basket.service._id === selectedService._id,
                 );
 
                 if (hasService) {
                   return newBasket.filter(
                     (b) =>
-                      b.employee._id !== selectedEmployee!._id &&
+                      b.employee._id !== selectedEmployee._id &&
                       b.service._id !== selectedService._id &&
                       isSameMinute(b.startDate, selectedTime!),
                   );
                 }
+
+                const lastItem = basket[basket.length - 1];
 
                 return [
                   ...newBasket,
                   {
                     employee: selectedEmployee,
                     service: selectedService,
-                    startDate: selectedTime,
-                    endDate: selectedService?.durationInMinutes
-                      ? addMinutes(
-                          selectedTime!,
-                          selectedService.durationInMinutes,
-                        )
-                      : addMinutes(selectedTime!, 60),
+                    startDate: lastItem ? lastItem.endDate : selectedTime,
+                    endDate: addMinutes(
+                      lastItem ? lastItem.endDate : selectedTime!,
+                      selectedService?.durationInMinutes ?? 60,
+                    ),
                   },
                 ];
               });
@@ -219,18 +227,11 @@ export function App() {
             className='h-10 w-72 bg-red-500 text-white'
             onClick={async (e) => {
               e.preventDefault();
-              const startDate = selectedTime!;
-              const minutes = basket
-                .map((item) => item.service.durationInMinutes ?? 60)
-                .reduce((acc, curr) => acc + curr, 0);
-              const endDate = addMinutes(startDate, minutes);
-
               const bookingServices = await convex
                 .mutation(api.widget.createBooking, {
                   customerId,
                   businessId: business._id,
-                  startDate: startDate.toISOString(),
-                  endDate: endDate.toISOString(),
+                  date: formatDate(selectedDate!, 'yyyy-MM-dd'),
                 })
                 .then((bookingId) =>
                   Promise.all(
@@ -241,12 +242,19 @@ export function App() {
                         customerId,
                         serviceId: item.service._id,
                         employeeId: item.employee._id,
+                        timeStart: item.startDate.toISOString(),
+                        timeEnd: item.endDate.toISOString(),
                       }),
                     ),
                   ),
                 );
               if (bookingServices.length) {
                 setCustomerId(null);
+                setSelectedDate(null);
+                setSelectedService(null);
+                setSelectedEmployee(null);
+                setSelectedTime(null);
+                setBasket([]);
               }
             }}
           >

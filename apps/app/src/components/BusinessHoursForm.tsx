@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from 'convex/react';
 import { api } from '@ahpatuh/convex/_generated/api';
+import { timeStringToInt } from '@ahpatuh/utils';
 
 interface BusinessHoursFormProps {
   onSuccess: (businessHours: Id<'businessHours'>[]) => void;
@@ -20,12 +21,48 @@ interface BusinessHoursFormProps {
 
 const formSchema = z.object({
   businessHours: z.array(
-    z.object({
-      dayOfWeek: z.date(),
-      timeOpen: z.string().optional(),
-      timeClose: z.string().optional(),
-      isClosed: z.boolean().default(false),
-    }),
+    z
+      .object({
+        dayOfWeek: z.date(),
+        timeOpen: z
+          .string({ message: 'Open time is required' })
+          .transform((value) => {
+            if (!value) return null;
+            const intTime = timeStringToInt(value);
+            return intTime;
+          }),
+        timeClose: z
+          .string({ message: 'Close time is required' })
+          .transform((value) => {
+            if (!value) return null;
+            const intTime = timeStringToInt(value);
+            return intTime;
+          }),
+        isClosed: z.boolean().default(false),
+      })
+      .refine(
+        (bh) => {
+          if (bh.isClosed) return true;
+          if (bh.timeOpen == null) return false;
+          if (bh.timeClose == null) return false;
+          return true;
+        },
+        {
+          message: 'Please enter opening and closing hours',
+        },
+      )
+      .refine(
+        (bh) => {
+          if (bh.isClosed) return true;
+          if (bh.timeOpen == null) return false;
+          if (bh.timeClose == null) return false;
+          if (bh.timeClose <= bh.timeOpen) {
+            return false;
+          }
+          return true;
+        },
+        { message: 'Close time must be after open time' },
+      ),
   ),
 });
 const weekDays = eachDayOfInterval({
@@ -66,6 +103,13 @@ export function BusinessHoursForm({ onSuccess }: BusinessHoursFormProps) {
     });
   };
 
+  const businessHoursErrors = new Set<string>();
+  if (form.formState.errors.businessHours instanceof Array) {
+    form.formState.errors.businessHours.forEach((bh) => {
+      businessHoursErrors.add(bh.message);
+    });
+  }
+
   return (
     <Form {...form}>
       <form
@@ -84,38 +128,42 @@ export function BusinessHoursForm({ onSuccess }: BusinessHoursFormProps) {
                   field.dayOfWeek,
                 )}
               </h1>
-              <FormField
-                control={form.control}
-                name={`businessHours.${index}.timeOpen`}
-                render={({ field }) => (
-                  <div className='flex gap-2'>
-                    <FormLabel htmlFor={`businessHours.${index}.timeOpen`}>
-                      Open
-                    </FormLabel>
-                    <Input
-                      id={`businessHours.${index}.timeOpen`}
-                      type='time'
-                      {...field}
-                    />
-                  </div>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`businessHours.${index}.timeClose`}
-                render={({ field }) => (
-                  <div className='flex gap-2'>
-                    <FormLabel htmlFor={`businessHours.${index}.timeClose`}>
-                      Close
-                    </FormLabel>
-                    <Input
-                      id={`businessHours.${index}.timeClose`}
-                      type='time'
-                      {...field}
-                    />
-                  </div>
-                )}
-              />
+              {form.watch(`businessHours.${index}.isClosed`) ? null : (
+                <>
+                  <FormField
+                    control={form.control}
+                    name={`businessHours.${index}.timeOpen`}
+                    render={({ field }) => (
+                      <div className='flex gap-2'>
+                        <FormLabel htmlFor={`businessHours.${index}.timeOpen`}>
+                          Open
+                        </FormLabel>
+                        <Input
+                          id={`businessHours.${index}.timeOpen`}
+                          type='time'
+                          {...field}
+                        />
+                      </div>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`businessHours.${index}.timeClose`}
+                    render={({ field }) => (
+                      <div className='flex gap-2'>
+                        <FormLabel htmlFor={`businessHours.${index}.timeClose`}>
+                          Close
+                        </FormLabel>
+                        <Input
+                          id={`businessHours.${index}.timeClose`}
+                          type='time'
+                          {...field}
+                        />
+                      </div>
+                    )}
+                  />
+                </>
+              )}
               <FormField
                 control={form.control}
                 name={`businessHours.${index}.isClosed`}
@@ -135,6 +183,11 @@ export function BusinessHoursForm({ onSuccess }: BusinessHoursFormProps) {
             </div>
           );
         })}
+        {Array.from(businessHoursErrors).map((err, i) => (
+          <div key={i} className='text-red-500'>
+            {err}
+          </div>
+        ))}
         <Button type='submit'>Save</Button>
       </form>
     </Form>

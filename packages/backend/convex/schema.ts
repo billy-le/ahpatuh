@@ -6,6 +6,7 @@ export const business = {
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
   userId: v.id('users'),
+  timeZone: v.optional(v.string()),
   updatedAt: v.string(),
 };
 
@@ -38,8 +39,8 @@ export const businessHour = {
     v.literal(5),
     v.literal(6),
   ), // 0 is Sunday
-  timeOpen: v.optional(v.string()),
-  timeClose: v.optional(v.string()),
+  timeOpen: v.union(v.number(), v.null()), // 24-hr
+  timeClose: v.union(v.number(), v.null()), // 24-hr
   isClosed: v.boolean(),
   businessId: v.id('businesses'),
   updatedAt: v.string(),
@@ -74,7 +75,7 @@ export const employee = {
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
   image: v.optional(v.string()),
-  hiredDate: v.optional(v.string()),
+  hiredDate: v.optional(v.string()), // yyyy-MM-dd
   isActive: v.boolean(),
   isBookable: v.optional(v.boolean()),
   businessId: v.id('businesses'),
@@ -92,11 +93,10 @@ export const shift = {
     v.literal(5),
     v.literal(6),
   ),
-  startTime: v.optional(v.string()),
-  endTime: v.optional(v.string()),
-  durationInMinutes: v.optional(v.number()),
-  numOfBreaks: v.optional(v.number()),
-  breakDurationInMinutes: v.optional(v.number()),
+  startTime: v.union(v.number(), v.null()), // 24-hr
+  endTime: v.union(v.number(), v.null()), // 24-hr
+  lunchStart: v.union(v.number(), v.null()), // 24-hr
+  lunchEnd: v.union(v.number(), v.null()), // 24-hr
   dayOff: v.boolean(),
   employeeId: v.id('employees'),
   businessId: v.id('businesses'),
@@ -105,15 +105,15 @@ export const shift = {
 
 export const nationalHoliday = {
   name: v.string(),
-  date: v.string(),
+  date: v.string(), // yyyy-MM-dd
   updatedAt: v.string(),
 };
 
 export const employeeUnavailability = {
   employeeId: v.id('employees'),
   businessId: v.id('businesses'),
-  startDate: v.string(),
-  endDate: v.string(),
+  startDate: v.number(), // epoch
+  endDate: v.number(), // epoch
   reason: v.optional(v.string()),
   updatedAt: v.string(),
 };
@@ -150,8 +150,7 @@ export const customer = {
 export const booking = {
   businessId: v.id('businesses'),
   customerId: v.id('customers'),
-  startDate: v.string(),
-  endDate: v.string(),
+  date: v.number(), // epoch
   updatedAt: v.string(),
   status: v.union(
     v.literal('REQUESTED'),
@@ -164,12 +163,25 @@ export const booking = {
   reviewId: v.optional(v.id('reviews')),
 };
 
+export const availabilitySlot = {
+  employeeId: v.id('employees'),
+  businessId: v.id('businesses'),
+  date: v.string(), // yyyy-MM-dd
+  timeStart: v.number(), // 24-hr number
+  timeEnd: v.number(),
+  dayOfWeek: v.number(),
+  isAvailable: v.boolean(),
+  updatedAt: v.string(),
+};
+
 export const bookingService = {
   employeeId: v.id('employees'),
   customerId: v.id('customers'),
   businessId: v.id('businesses'),
   bookingId: v.id('bookings'),
   serviceId: v.id('services'),
+  timeStart: v.number(),
+  timeEnd: v.number(),
   updatedAt: v.string(),
 };
 
@@ -244,6 +256,7 @@ export const language = {
 export const widgetSetting = {
   businessId: v.id('businessId'),
   calendarView: v.union(v.literal('month'), v.literal('week')),
+  bookingMinutesInterval: v.number(),
 };
 
 export default defineSchema({
@@ -270,7 +283,7 @@ export default defineSchema({
   languages: defineTable(language).index('language', ['value']),
   shifts: defineTable(shift)
     .index('by_businessId', ['businessId'])
-    .index('by_employeeId', ['employeeId']),
+    .index('by_employeeId', ['employeeId', 'day']),
   nationalHolidays: defineTable(nationalHoliday).index('by_date', ['date']),
   employeeUnavailabilities: defineTable(employeeUnavailability)
     .index('by_employee_date_range', ['employeeId', 'startDate', 'endDate'])
@@ -283,10 +296,11 @@ export default defineSchema({
     .index('by_business_customer', ['businessId', 'email', 'phone']),
   bookings: defineTable(booking)
     .index('by_businessId', ['businessId'])
-    .index('by_date', ['businessId', 'startDate', 'endDate']),
+    .index('by_date', ['businessId', 'date']),
   bookingServices: defineTable(bookingService)
     .index('by_businessId', ['businessId'])
-    .index('by_employee', ['employeeId']),
+    .index('by_employee', ['employeeId'])
+    .index('by_date', ['timeStart', 'timeEnd']),
   reviews: defineTable(review).index('by_businessId', ['businessId']),
   serviceFeedbacks: defineTable(serviceFeedback)
     .index('by_businessId', ['businessId'])
@@ -322,4 +336,14 @@ export default defineSchema({
   widgetSettings: defineTable(widgetSetting).index('by_businessId', [
     'businessId',
   ]),
+  availabilitySlots: defineTable(availabilitySlot)
+    .index('by_employeeId', ['employeeId', 'timeStart'])
+    .index('by_employee_dayOfWeek_timeSlots', [
+      'employeeId',
+      'dayOfWeek',
+      'timeStart',
+      'timeEnd',
+    ])
+    .index('by_date', ['date', 'employeeId'])
+    .index('by_businessId', ['businessId', 'dayOfWeek']),
 });

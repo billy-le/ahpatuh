@@ -8,9 +8,11 @@
  * @module
  */
 
+import type * as _syncAvailability from "../_syncAvailability.js";
 import type * as _utils from "../_utils.js";
 import type * as address from "../address.js";
 import type * as auth from "../auth.js";
+import type * as availabilitySlots from "../availabilitySlots.js";
 import type * as bookingServices from "../bookingServices.js";
 import type * as bookings from "../bookings.js";
 import type * as business from "../business.js";
@@ -22,6 +24,7 @@ import type * as domains from "../domains.js";
 import type * as domains_verify from "../domains_verify.js";
 import type * as employeeUnavailability from "../employeeUnavailability.js";
 import type * as employees from "../employees.js";
+import type * as functions from "../functions.js";
 import type * as http from "../http.js";
 import type * as languages from "../languages.js";
 import type * as media from "../media.js";
@@ -36,6 +39,9 @@ import type * as serviceMedia from "../serviceMedia.js";
 import type * as services from "../services.js";
 import type * as shifts from "../shifts.js";
 import type * as storage from "../storage.js";
+import type * as triggers_business_hours from "../triggers/business_hours.js";
+import type * as triggers_index from "../triggers/index.js";
+import type * as triggers_shifts from "../triggers/shifts.js";
 import type * as users from "../users.js";
 import type * as widget from "../widget.js";
 
@@ -54,9 +60,11 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  _syncAvailability: typeof _syncAvailability;
   _utils: typeof _utils;
   address: typeof address;
   auth: typeof auth;
+  availabilitySlots: typeof availabilitySlots;
   bookingServices: typeof bookingServices;
   bookings: typeof bookings;
   business: typeof business;
@@ -68,6 +76,7 @@ declare const fullApi: ApiFromModules<{
   domains_verify: typeof domains_verify;
   employeeUnavailability: typeof employeeUnavailability;
   employees: typeof employees;
+  functions: typeof functions;
   http: typeof http;
   languages: typeof languages;
   media: typeof media;
@@ -82,6 +91,9 @@ declare const fullApi: ApiFromModules<{
   services: typeof services;
   shifts: typeof shifts;
   storage: typeof storage;
+  "triggers/business_hours": typeof triggers_business_hours;
+  "triggers/index": typeof triggers_index;
+  "triggers/shifts": typeof triggers_shifts;
   users: typeof users;
   widget: typeof widget;
 }>;
