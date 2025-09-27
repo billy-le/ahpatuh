@@ -8,7 +8,7 @@ import { convexQuery } from '@convex-dev/react-query';
 import { Loader } from '@ahpatuh/ui';
 import { ConvexError } from 'convex/values';
 
-export const Route = createFileRoute('/_authenticated/calendar')({
+export const Route = createFileRoute('/_authenticated/calendar/')({
   component: CalendarPage,
 });
 

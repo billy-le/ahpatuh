@@ -5,6 +5,8 @@ import {
   useRouter,
 } from '@tanstack/react-router';
 import { authClient } from '@/lib/auth-client';
+import { User2Icon } from 'lucide-react';
+import { Card } from '@ahpatuh/ui';
 export const Route = createFileRoute('/sign-up')({
   beforeLoad: (ctx) => {
     if (ctx.context.userId) {
@@ -34,34 +36,18 @@ function SignUp() {
   };
 
   return (
-    <div>
-      <form
-        className='mx-auto max-w-96 w-full text-center border border-gray-300/60 rounded-2xl px-8 bg-white'
-        onSubmit={handleSignUp}
-      >
+    <Card className='mx-auto max-w-96 w-full text-center px-8'>
+      <form onSubmit={handleSignUp}>
         <h1 className='text-gray-900 text-3xl mt-10 font-medium'>Sign Up</h1>
         <p className='text-gray-500 text-sm mt-2'>
           Please create an account to continue
         </p>
         <div className='flex items-center w-full mt-10 bg-white border border-gray-300/80 h-12 rounded-full overflow-hidden pl-6 gap-2'>
-          <svg
-            width='16'
-            height='11'
-            viewBox='0 0 16 11'
-            fill='none'
-            xmlns='http://www.w3.org/2000/svg'
-          >
-            <path
-              fillRule='evenodd'
-              clipRule='evenodd'
-              d='M0 .55.571 0H15.43l.57.55v9.9l-.571.55H.57L0 10.45zm1.143 1.138V9.9h13.714V1.69l-6.503 4.8h-.697zM13.749 1.1H2.25L8 5.356z'
-              fill='#6B7280'
-            />
-          </svg>
+          <User2Icon />
           <input
             type='text'
             name='name'
-            placeholder='name'
+            placeholder='Full Name'
             className='bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full'
             required
           />
@@ -84,7 +70,7 @@ function SignUp() {
           <input
             type='email'
             name='email'
-            placeholder='Email id'
+            placeholder='Email'
             className='bg-transparent text-gray-500 placeholder-gray-500 outline-none text-sm w-full h-full'
             required
           />
@@ -123,13 +109,13 @@ function SignUp() {
         >
           Sign Up
         </button>
-        <p className='text-gray-500 text-sm mt-3 mb-11'>
+        <p className='text-gray-500 text-sm mt-3 mb-11 text-left'>
           Have an account?{' '}
           <Link to='/login' className='text-indigo-500'>
             Login
           </Link>
         </p>
       </form>
-    </div>
+    </Card>
   );
 }

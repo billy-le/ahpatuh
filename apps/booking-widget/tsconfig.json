@@ -1,0 +1,39 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["**/*.ts", "**/*.tsx"],
+  "references": [
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/utils"
+    },
+    {
+      "path": "../../packages/backend"
+    }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    // General
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "target": "ESNext",
+
+    // Modules
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+
+    // Type Checking & Safety
+    "strict": true,
+    "types": ["vite/client"],
+    "paths": {
+      "@ahpatuh/convex/*": ["../../packages/backend/convex/*"],
+      "@ahpatuh/ui": ["../../packages/ui"],
+      "@ahpatuh/utils": ["../../packages/utils"]
+    }
+  }
+}

@@ -1,4 +1,3 @@
-import { api } from '@ahpatuh/convex/_generated/api';
 import {
   Button,
   Card,
@@ -12,18 +11,21 @@ import {
   Input,
 } from '@ahpatuh/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQuery } from 'convex/react';
+import { useAction, useMutation, useQuery } from 'convex/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
 import z from 'zod';
+import { CheckIcon, XIcon } from 'lucide-react';
+import { api } from '@ahpatuh/convex/_generated/api';
+import { intToTimeString, timeStringToInt } from '@ahpatuh/utils';
 
 const start = startOfWeek(new Date());
 const end = endOfWeek(new Date());
 const weekInterval = eachDayOfInterval({ start, end });
 
 const businessSettingsFormSchema = z.object({
-  name: z.string().optional(),
+  name: z.string(),
   email: z.email().optional(),
   phone: z.string().optional(),
   domain: z.url().optional(),
@@ -37,12 +39,41 @@ const businessSettingsFormSchema = z.object({
     postalCode: z.string().optional(),
   }),
   businessHours: z.array(
-    z.object({
-      _id: z.string().optional(),
-      timeOpen: z.string().optional(),
-      timeClose: z.string().optional(),
-      isClosed: z.boolean().default(false),
-    }),
+    z
+      .object({
+        _id: z.string().optional(),
+        timeOpen: z.string().transform((value) => {
+          if (!value) return null;
+          return timeStringToInt(value);
+        }),
+        timeClose: z.string().transform((value) => {
+          if (!value) return null;
+          return timeStringToInt(value);
+        }),
+        isClosed: z.boolean().default(false),
+      })
+      .refine(
+        (bh) => {
+          if (bh.isClosed) return true;
+          if (bh.timeOpen == null) return false;
+          if (bh.timeClose == null) return false;
+          return true;
+        },
+        { message: 'Please enter an opening and closing time' },
+      )
+      .refine(
+        (bh) => {
+          if (bh.isClosed) return true;
+          if (bh.timeOpen == null) return false;
+          if (bh.timeClose == null) return false;
+
+          if (bh.timeOpen >= bh.timeClose) {
+            return false;
+          }
+          return true;
+        },
+        { message: 'Close time must be after open time' },
+      ),
   ),
 });
 
@@ -51,6 +82,9 @@ export function BusinessSettingsForm() {
   const createBusiness = useMutation(api.business.createBusiness);
   const updateBusiness = useMutation(api.business.updateBusiness);
   const updateAddress = useMutation(api.address.mutateAddress);
+  const mutateDomain = useMutation(api.domains.mutateDomain);
+  const deleteDomain = useMutation(api.domains.deleteDomain);
+  const verifyDomain = useAction(api.domains_verify.verifyDomain);
   const updateBusinessHours = useMutation(
     api.businessHours.mutateBusinessHours,
   );
@@ -64,7 +98,7 @@ export function BusinessSettingsForm() {
     form.setValue('name', business.name);
     form.setValue('email', business.email);
     form.setValue('phone', business.phone);
-    form.setValue('domain', business.domain);
+    form.setValue('domain', business.domain?.name);
     if (business.address) {
       form.setValue('address', {
         ...business.address,
@@ -72,7 +106,14 @@ export function BusinessSettingsForm() {
       });
     }
     if (business.businessHours.length > 0) {
-      form.setValue('businessHours', business.businessHours);
+      form.setValue(
+        'businessHours',
+        business.businessHours.map((bh) => ({
+          ...bh,
+          timeOpen: bh.timeOpen != null ? intToTimeString(bh.timeOpen) : '',
+          timeClose: bh.timeClose != null ? intToTimeString(bh.timeClose) : '',
+        })),
+      );
     }
   }, [business]);
 
@@ -80,7 +121,11 @@ export function BusinessSettingsForm() {
     values: z.infer<typeof businessSettingsFormSchema>,
   ) => {
     if (!business) {
-      createBusiness(values);
+      const { businessHours, domain, address, ...businessValue } = values;
+      createBusiness({
+        ...businessValue,
+        domain,
+      });
       return;
     }
     updateBusiness({
@@ -88,18 +133,49 @@ export function BusinessSettingsForm() {
       name: values.name,
       email: values.email,
       phone: values.phone,
-      domain: values.domain,
     })
       .then(() => updateAddress(values.address))
+      .then(() => {
+        try {
+          const url = new URL(values.domain);
+          if (business.domain?.name === url.origin) return;
+
+          if (business.domain?._id) {
+            mutateDomain({ _id: business.domain._id, name: url.origin });
+          } else {
+            mutateDomain({ name: url.origin });
+          }
+        } catch (_) {
+          if (business.domain?._id) {
+            deleteDomain({ _id: business.domain._id });
+          } else if (values.domain?.length) {
+            form.setError('domain', { message: 'Invalid URL' });
+          }
+        }
+      })
       .then(() =>
         updateBusinessHours({
           businessHours: values.businessHours.map((bh, index) => ({
-            ...bh,
+            _id: bh._id,
+            timeOpen: bh.timeOpen != null ? bh.timeOpen : null,
+            timeClose: bh.timeClose != null ? bh.timeClose : null,
+            isClosed: bh.isClosed,
             dayOfWeek: index,
           })),
         }),
       );
   };
+
+  const businessHoursErrors = new Set<string>();
+
+  if (
+    form.formState.errors.businessHours instanceof Array &&
+    form.formState.errors.businessHours?.length
+  ) {
+    form.formState.errors.businessHours.forEach(({ message }) =>
+      businessHoursErrors.add(message),
+    );
+  }
 
   return (
     <Form {...form}>
@@ -154,12 +230,49 @@ export function BusinessSettingsForm() {
               <FormItem>
                 <FormLabel>Domain</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <div className='relative '>
+                    <Input {...field} />
+                    {business?.domain && (
+                      <Button
+                        type='button'
+                        variant='outline'
+                        size='icon'
+                        className='absolute rounded-l-none right-0 top-1/2 -translate-y-1/2'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (!business?.domain?.isVerified) {
+                            verifyDomain({});
+                          }
+                        }}
+                      >
+                        {business.domain.isVerified ? (
+                          <CheckIcon className='text-green-500' />
+                        ) : (
+                          <XIcon className='text-red-500' />
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+          {!business?.domain?.isVerified ? (
+            <div>
+              <p className='mb-2'>
+                Domain not verified. Add a TXT record to your DNS records.
+              </p>
+              <code>{business?.domain?.challengePublic}</code>
+            </div>
+          ) : (
+            business?.domain?.publicKey && (
+              <div>
+                <p className='mb-2'>Your public key is:</p>
+                <code>{business?.domain?.publicKey}</code>
+              </div>
+            )
+          )}
         </Card>
         <Card className='p-6'>
           <FormField
@@ -260,18 +373,22 @@ export function BusinessSettingsForm() {
                     )}
                   </td>
                   <td className='py-2 px-3'>
-                    <Input
-                      type='time'
-                      className='w-fit mx-auto'
-                      {...form.register(`businessHours.${index}.timeOpen`)}
-                    />
+                    {!businessHour.isClosed && (
+                      <Input
+                        type='time'
+                        className='w-fit mx-auto'
+                        {...form.register(`businessHours.${index}.timeOpen`)}
+                      />
+                    )}
                   </td>
                   <td className='py-2 px-3'>
-                    <Input
-                      type='time'
-                      className='w-fit mx-auto'
-                      {...form.register(`businessHours.${index}.timeClose`)}
-                    />
+                    {!businessHour.isClosed && (
+                      <Input
+                        type='time'
+                        className='w-fit mx-auto'
+                        {...form.register(`businessHours.${index}.timeClose`)}
+                      />
+                    )}
                   </td>
                   <td className='py-2 px-3'>
                     <Checkbox
@@ -288,6 +405,11 @@ export function BusinessSettingsForm() {
               ))}
             </tbody>
           </table>
+          {Array.from(businessHoursErrors).map((m, i) => (
+            <div key={i} className='text-red-500'>
+              {m}
+            </div>
+          ))}
         </Card>
         <Button
           type='submit'

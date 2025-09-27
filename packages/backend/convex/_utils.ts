@@ -52,3 +52,30 @@ export async function getBusiness(ctx: GenericCtx, user: Doc<'users'>) {
     throw new ConvexError({ message: 'Business not found', code: 404 });
   return business;
 }
+
+export async function generateUUID() {
+  // Generate 16 random bytes using crypto.subtle
+  const array = new Uint8Array(16);
+  const randomBytes = await crypto.subtle.digest(
+    'SHA-256',
+    crypto.getRandomValues(array),
+  );
+  const bytes = new Uint8Array(randomBytes).slice(0, 16);
+
+  // Set version (4) and variant bits according to RFC 4122
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // Version 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // Variant bits
+
+  // Convert to hex string with hyphens
+  const hex = Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    hex.slice(12, 16),
+    hex.slice(16, 20),
+    hex.slice(20, 32),
+  ].join('-');
+}

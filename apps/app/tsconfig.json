@@ -1,15 +1,21 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "../../packages/backend/convex/**/*",
-    "../../packages/ui/**/*",
-    "../../packages/utils/**/*"
+  "include": ["**/*.ts", "**/*.tsx", "../booking-widget/dist/ahpatuh.min.js"],
+  "references": [
+    {
+      "path": "../../packages/backend"
+    },
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../../packages/utils"
+    }
   ],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@ahpatuh/booking-widget": ["../booking-widget/dist/ahpatuh.min.js"],
       "@ahpatuh/convex/*": ["../../packages/backend/convex/*"],
       "@ahpatuh/ui": ["../../packages/ui"],
       "@ahpatuh/utils": ["../../packages/utils"],

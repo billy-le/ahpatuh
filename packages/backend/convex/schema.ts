@@ -5,9 +5,28 @@ export const business = {
   name: v.string(),
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
-  domain: v.optional(v.string()),
   userId: v.id('users'),
+  timeZone: v.optional(v.string()),
   updatedAt: v.string(),
+};
+
+export const domain = {
+  name: v.string(),
+  challengePublic: v.string(),
+  challengeSecret: v.string(),
+  publicKey: v.optional(v.string()),
+  isVerified: v.boolean(),
+  status: v.union(
+    v.literal('active'),
+    v.literal('inactive'),
+    v.literal('revoked'),
+  ),
+  updatedAt: v.string(),
+};
+
+export const businessDomain = {
+  businessId: v.id('businesses'),
+  domainId: v.id('domains'),
 };
 
 export const businessHour = {
@@ -20,8 +39,8 @@ export const businessHour = {
     v.literal(5),
     v.literal(6),
   ), // 0 is Sunday
-  timeOpen: v.optional(v.string()),
-  timeClose: v.optional(v.string()),
+  timeOpen: v.union(v.number(), v.null()), // 24-hr
+  timeClose: v.union(v.number(), v.null()), // 24-hr
   isClosed: v.boolean(),
   businessId: v.id('businesses'),
   updatedAt: v.string(),
@@ -42,8 +61,12 @@ export const role = {
   name: v.string(),
   description: v.optional(v.string()),
   businessId: v.id('businesses'),
-  serviceId: v.optional(v.array(v.id('services'))),
   updatedAt: v.string(),
+};
+
+export const roleServices = {
+  roleId: v.id('roles'),
+  serviceId: v.id('services'),
 };
 
 export const employee = {
@@ -52,7 +75,7 @@ export const employee = {
   email: v.optional(v.string()),
   phone: v.optional(v.string()),
   image: v.optional(v.string()),
-  hiredDate: v.optional(v.string()),
+  hiredDate: v.optional(v.string()), // yyyy-MM-dd
   isActive: v.boolean(),
   isBookable: v.optional(v.boolean()),
   businessId: v.id('businesses'),
@@ -70,11 +93,10 @@ export const shift = {
     v.literal(5),
     v.literal(6),
   ),
-  startTime: v.optional(v.string()),
-  endTime: v.optional(v.string()),
-  durationInMinutes: v.optional(v.number()),
-  numOfBreaks: v.optional(v.number()),
-  breakDurationInMinutes: v.optional(v.number()),
+  startTime: v.union(v.number(), v.null()), // 24-hr
+  endTime: v.union(v.number(), v.null()), // 24-hr
+  lunchStart: v.union(v.number(), v.null()), // 24-hr
+  lunchEnd: v.union(v.number(), v.null()), // 24-hr
   dayOff: v.boolean(),
   employeeId: v.id('employees'),
   businessId: v.id('businesses'),
@@ -83,15 +105,15 @@ export const shift = {
 
 export const nationalHoliday = {
   name: v.string(),
-  date: v.string(),
+  date: v.string(), // yyyy-MM-dd
   updatedAt: v.string(),
 };
 
 export const employeeUnavailability = {
   employeeId: v.id('employees'),
   businessId: v.id('businesses'),
-  startDate: v.string(),
-  endDate: v.string(),
+  startDate: v.number(), // epoch
+  endDate: v.number(), // epoch
   reason: v.optional(v.string()),
   updatedAt: v.string(),
 };
@@ -99,6 +121,7 @@ export const employeeUnavailability = {
 export const service = {
   name: v.string(),
   description: v.optional(v.string()),
+  durationInMinutes: v.optional(v.number()),
   price: v.number(),
   businessId: v.id('businesses'),
   updatedAt: v.string(),
@@ -127,17 +150,28 @@ export const customer = {
 export const booking = {
   businessId: v.id('businesses'),
   customerId: v.id('customers'),
-  date: v.string(),
+  date: v.number(), // epoch
   updatedAt: v.string(),
   status: v.union(
     v.literal('REQUESTED'),
     v.literal('CONFIRMED'),
-    v.literal('PENDING'),
+    v.literal('CHECKED-IN'),
     v.literal('COMPLETED'),
     v.literal('CANCELED'),
     v.literal('NO SHOW'),
   ),
   reviewId: v.optional(v.id('reviews')),
+};
+
+export const availabilitySlot = {
+  employeeId: v.id('employees'),
+  businessId: v.id('businesses'),
+  date: v.string(), // yyyy-MM-dd
+  timeStart: v.number(), // 24-hr number
+  timeEnd: v.number(),
+  dayOfWeek: v.number(),
+  isAvailable: v.boolean(),
+  updatedAt: v.string(),
 };
 
 export const bookingService = {
@@ -146,6 +180,8 @@ export const bookingService = {
   businessId: v.id('businesses'),
   bookingId: v.id('bookings'),
   serviceId: v.id('services'),
+  timeStart: v.number(),
+  timeEnd: v.number(),
   updatedAt: v.string(),
 };
 
@@ -161,7 +197,6 @@ export const review = {
     v.literal(5),
   ),
   review: v.optional(v.string()),
-  serviceFeedbackIds: v.optional(v.array(v.id('serviceFeedbacks'))),
   updatedAt: v.string(),
 };
 
@@ -218,6 +253,12 @@ export const language = {
   value: v.string(),
 };
 
+export const widgetSetting = {
+  businessId: v.id('businessId'),
+  calendarView: v.union(v.literal('month'), v.literal('week')),
+  bookingMinutesInterval: v.number(),
+};
+
 export default defineSchema({
   users: defineTable({
     name: v.optional(v.string()),
@@ -237,11 +278,12 @@ export default defineSchema({
     .index('unique_position', ['name', 'businessId']),
   employees: defineTable(employee)
     .index('by_businessId', ['businessId'])
-    .index('by_positionId', ['positionId']),
+    .index('by_positionId', ['positionId'])
+    .index('by_bookable', ['businessId', 'isBookable']),
   languages: defineTable(language).index('language', ['value']),
   shifts: defineTable(shift)
     .index('by_businessId', ['businessId'])
-    .index('by_employeeId', ['employeeId']),
+    .index('by_employeeId', ['employeeId', 'day']),
   nationalHolidays: defineTable(nationalHoliday).index('by_date', ['date']),
   employeeUnavailabilities: defineTable(employeeUnavailability)
     .index('by_employee_date_range', ['employeeId', 'startDate', 'endDate'])
@@ -249,11 +291,16 @@ export default defineSchema({
     .index('by_business_id', ['businessId'])
     .index('by_employee_id', ['employeeId']),
   services: defineTable(service).index('by_businessId', ['businessId']),
-  customers: defineTable(customer).index('by_businessId', ['businessId']),
-  bookings: defineTable(booking).index('by_businessId', ['businessId']),
-  bookingServices: defineTable(bookingService).index('by_businessId', [
-    'businessId',
-  ]),
+  customers: defineTable(customer)
+    .index('by_businessId', ['businessId'])
+    .index('by_business_customer', ['businessId', 'email', 'phone']),
+  bookings: defineTable(booking)
+    .index('by_businessId', ['businessId'])
+    .index('by_date', ['businessId', 'date']),
+  bookingServices: defineTable(bookingService)
+    .index('by_businessId', ['businessId'])
+    .index('by_employee', ['employeeId'])
+    .index('by_date', ['timeStart', 'timeEnd']),
   reviews: defineTable(review).index('by_businessId', ['businessId']),
   serviceFeedbacks: defineTable(serviceFeedback)
     .index('by_businessId', ['businessId'])
@@ -277,4 +324,26 @@ export default defineSchema({
   serviceMedia: defineTable(serviceMedia)
     .index('by_serviceId', ['serviceId'])
     .index('by_mediaId', ['mediaId']),
+  domains: defineTable(domain)
+    .index('by_name_challengePublic', ['name', 'challengePublic'])
+    .index('by_name_publicKey', ['name', 'publicKey']),
+  businessDomains: defineTable(businessDomain)
+    .index('by_businessId', ['businessId'])
+    .index('by_domainId', ['domainId']),
+  roleServices: defineTable(roleServices)
+    .index('by_roleId', ['roleId'])
+    .index('by_serviceId', ['serviceId']),
+  widgetSettings: defineTable(widgetSetting).index('by_businessId', [
+    'businessId',
+  ]),
+  availabilitySlots: defineTable(availabilitySlot)
+    .index('by_employeeId', ['employeeId', 'timeStart'])
+    .index('by_employee_dayOfWeek_timeSlots', [
+      'employeeId',
+      'dayOfWeek',
+      'timeStart',
+      'timeEnd',
+    ])
+    .index('by_date', ['date', 'employeeId'])
+    .index('by_businessId', ['businessId', 'dayOfWeek']),
 });

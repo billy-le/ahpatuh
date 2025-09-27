@@ -1,4 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
-  "include": ["./convex"]
+  "include": ["./convex"],
+  "references": [
+    {
+      "path": "../../packages/utils"
+    }
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "path": {
+      "@ahpatuh/utils": ["../utils"]
+    }
+  }
 }

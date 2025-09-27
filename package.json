@@ -7,7 +7,7 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "dev:app": "pnpm -r --parallel dev",
+    "dev:app": "pnpm --filter @ahpatuh/booking-widget build && pnpm -r --parallel dev",
     "prepare": "husky"
   },
   "dependencies": {
