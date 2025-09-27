@@ -1,25 +1,32 @@
 {
   "name": "@ahpatuh/booking-widget",
-  "private": true,
   "version": "0.0.0",
+  "description": "",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "start": "vite",
+    "dev:watch": "vite build --watch --mode development",
+    "dev:serve": "serve dist -p 8888 --cors",
+    "dev:local": "vite",
+    "dev": "concurrently \"pnpm dev:watch\" \"pnpm dev:serve\" \"pnpm dev:local\"",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "@tailwindcss/vite": "^4.1.13",
+    "concurrently": "^9.2.1",
+    "serve": "^14.2.5",
+    "solid-devtools": "^0.34.3",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.4",
+    "vite-plugin-dts": "^4.5.4",
+    "vite-plugin-solid": "^2.11.8"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.13",
-    "convex": "^1.26.2",
-    "convex-helpers": "^0.1.104",
-    "date-fns": "^4.1.0",
-    "lucide-preact": "^0.544.0",
-    "preact": "^10.27.0"
-  },
-  "devDependencies": {
-    "@preact/preset-vite": "^2.10.2",
-    "typescript": "~5.8.3",
-    "vite": "^7.1.2",
-    "vite-tsconfig-paths": "^5.1.4"
+    "convex-solidjs": "^0.0.3",
+    "solid-js": "^1.9.9"
   }
 }

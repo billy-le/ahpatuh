@@ -1,7 +1,33 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "../../packages/backend/convex/**/*",
+    "../../packages/ui/**/*",
+    "../../packages/utils/**/*"
+  ],
+  "compilerOptions": {
+    // General
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "target": "ESNext",
+
+    // Modules
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+
+    // Type Checking & Safety
+    "strict": true,
+    "types": ["vite/client"],
+    "paths": {
+      "@ahpatuh/convex/*": ["../../packages/backend/convex/*"],
+      "@ahpatuh/ui": ["../../packages/ui"],
+      "@ahpatuh/utils": ["../../packages/utils"]
+    }
+  }
 }

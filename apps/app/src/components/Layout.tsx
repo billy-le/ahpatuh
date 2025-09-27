@@ -38,6 +38,7 @@ const navigation: (NavigationLink & {
     to: '/calendar',
     name: 'Calendar',
     icon: <Calendar />,
+    subPaths: [{ to: '/calendar/widget', name: 'Widget' }],
   },
   {
     to: '/employees',
