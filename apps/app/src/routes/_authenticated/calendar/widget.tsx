@@ -1,4 +1,5 @@
 import { Layout } from '@/components/Layout';
+import { Text } from '@/components/Text';
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect, useRef } from 'react';
 
@@ -26,6 +27,18 @@ export const useCalendarWidget = (config: {
       }
     };
 
+    if (!document.head.querySelector('#ahpatuh-widget-stylesheet')) {
+      const link = document.createElement('link');
+      link.id = 'ahpatuh-widget-stylesheet';
+      link.href =
+        process.env.NODE_ENV === 'development'
+          ? 'http://localhost:8888/ahpatuh-widget.css'
+          : '/embeds/ahpatuh-widget.css';
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      document.head.appendChild(link);
+    }
+
     // Load script if not already loaded
     if (!document.querySelector('#calendar-widget-script')) {
       const script = document.createElement('script');
@@ -42,7 +55,6 @@ export const useCalendarWidget = (config: {
     }
   }, []);
 
-  // Update config when it changes
   useEffect(() => {
     if (isLoaded && window.AhpatuhBookingWidget && containerRef.current) {
       window.AhpatuhBookingWidget.updateConfig(containerRef.current.id, config);
@@ -106,11 +118,22 @@ const CalendarThemeConfig = () => {
         </div>
       </div>
 
-      <div className='embed-code'>
-        <h3>Embed Code</h3>
+      <div>
+        <Text el='h3'>Embed Code</Text>
+
+        <Text el='p' className='mb-4'>
+          In the Document head:
+        </Text>
         <pre>
-          {`<div id="booking-calendar"></div>
-<script src="${window.location.origin}/embeds/calendar-widget.js"></script>
+          {`<link href="https://mycdn.com/embeds/ahpatuh-widget.css" rel="stylesheet" type="text/css" />`}
+        </pre>
+
+        <Text el='p' className='mt-10 mb-4'>
+          In the body
+        </Text>
+        <pre>
+          {`<div id="ahpatuh-widget"></div>
+<script src="https://mycdn.com/embeds/ahpatuh-widget.js"></script>
 <script>
   BookingCalendar.init('booking-calendar', ${JSON.stringify(theme, null, 2)});
 </script>`}

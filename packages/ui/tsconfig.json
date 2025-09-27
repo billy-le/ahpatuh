@@ -1,9 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "include": ["./components"],
+  "references": [{ "path": "../utils" }],
   "compilerOptions": {
     "baseUrl": ".",
+    "composite": true,
     "paths": {
+      "@ahpatuh/ui": ["./index.ts"],
       "@ahpatuh/utils": ["../utils"],
       "@components/*": ["./components/*"]
     }

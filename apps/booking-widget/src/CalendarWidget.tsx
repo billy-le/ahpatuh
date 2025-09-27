@@ -13,11 +13,12 @@ import {
   isBefore,
   isSameDay,
 } from 'date-fns';
+import { cx } from '@ahpatuh/utils';
 
 export interface CalendarWidgetProps {
+  isLoaded: boolean;
   primaryColor: string;
   secondaryColor: string;
-  accentColor: string;
 }
 
 const weekDayNameFormatter = new Intl.DateTimeFormat('en-US', {
@@ -25,7 +26,11 @@ const weekDayNameFormatter = new Intl.DateTimeFormat('en-US', {
 });
 const dayFormatter = new Intl.DateTimeFormat('en-US', { day: 'numeric' });
 
-function CalendarWidget(props: CalendarWidgetProps) {
+function CalendarWidget({
+  isLoaded,
+  secondaryColor,
+  primaryColor,
+}: CalendarWidgetProps) {
   const today = startOfDay(new Date());
   const [date, setDate] = createSignal(today);
   const [selectedDate, setSelectedDate] = createSignal<Date | null>(today);
@@ -64,20 +69,26 @@ function CalendarWidget(props: CalendarWidgetProps) {
 
   return (
     <div class='w-fit'>
-      <input
-        type='date'
-        class='mx-auto block'
-        min={dateFormat(new Date(), 'yyyy-MM-dd')}
-        onchange={(e) => {
-          const value = e.target.value;
-          const date = dateParse(value, 'yyyy-MM-dd', new Date());
-          if (isValid(date) && !isBefore(date, new Date())) {
-            setDate(date);
-          }
-        }}
-        value={dateFormat(date(), 'yyyy-MM-dd')}
-      />
-      <div class='grid grid-cols-7 gap-1'>
+      {isLoaded && (
+        <input
+          type='date'
+          class='mx-auto block'
+          min={dateFormat(new Date(), 'yyyy-MM-dd')}
+          onchange={(e) => {
+            const value = e.target.value;
+            const date = dateParse(value, 'yyyy-MM-dd', new Date());
+            if (isValid(date) && !isBefore(date, new Date())) {
+              setDate(date);
+            }
+          }}
+          value={dateFormat(date(), 'yyyy-MM-dd')}
+        />
+      )}
+      <div
+        class={cx('grid grid-cols-7 gap-1', {
+          'cursor-none pointer-events-none relative': !isLoaded,
+        })}
+      >
         {daysOfTheWeek().map((day) => (
           <div class='text-center'>{weekDayNameFormatter.format(day)}</div>
         ))}
@@ -88,11 +99,11 @@ function CalendarWidget(props: CalendarWidgetProps) {
             <button
               class='mx-auto rounded-full size-10 grid place-items-center'
               style={{
-                'background-color': props.primaryColor ?? undefined,
+                'background-color': primaryColor,
                 color:
                   selectedDate() && isSelectedSameDay(day)
                     ? 'tan'
-                    : (props.secondaryColor ?? 'black'),
+                    : (secondaryColor ?? 'black'),
               }}
               onclick={(e) => {
                 e.preventDefault();
@@ -106,6 +117,13 @@ function CalendarWidget(props: CalendarWidgetProps) {
             </button>
           );
         })}
+        {!isLoaded && (
+          <div class='absolute inset-0 bg-white/90 h-full w-full grid place-items-center text-xl'>
+            <p class='w-64 text-center text-balance'>
+              Booking is unavailable at this time
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,35 +3,76 @@ import './index.css';
 import { render } from 'solid-js/web';
 import 'solid-devtools';
 import CalendarWidget, { type CalendarWidgetProps } from './CalendarWidget';
+import { setupConvex, ConvexProvider } from 'convex-solidjs';
 
-const AhpatuhBookingWidget = {
-  init(containerId: string, config: CalendarWidgetProps) {
-    const container = document.getElementById(containerId);
-    if (!container) throw new Error('bad');
-    container.innerHTML = '';
-    return render(() => CalendarWidget(config), container);
-  },
-  updateConfig(containerId: string, newConfig: CalendarWidgetProps) {
+class AhpatuhBookingWidget {
+  private _client: ReturnType<typeof setupConvex> | null;
+  private _container: HTMLElement | null;
+  private _config: CalendarWidgetProps | null;
+
+  constructor() {
+    this._client = null;
+    this._container = null;
+    this._config = null;
+  }
+
+  public async init(containerId: string, config: CalendarWidgetProps) {
+    this._config = config;
+    const container = this._container || document.getElementById(containerId);
+    if (!container) throw new Error('Ahpatuh container not found');
+    if (!this._container) {
+      this._container = container;
+    }
+    this._container.innerHTML = '';
+    // authenticate domain then render
+    return this.renderNotConfigured();
+  }
+
+  public updateConfig(containerId: string, newConfig: CalendarWidgetProps) {
     return this.init(containerId, newConfig);
-  },
-};
+  }
 
-export type AhpatuhBookingWidgetType = typeof AhpatuhBookingWidget;
+  private initializeConvex() {
+    this._client = setupConvex(import.meta.env.VITE_CONVEX_URL);
+  }
+
+  private render() {
+    if (this._container == null) throw new Error('Ahpatuh container not found');
+    if (this._config == null) throw new Error('Ahpatuh config not found');
+    if (this._client == null) throw new Error('Ahpatuh convex not configured');
+    return render(
+      () => (
+        <ConvexProvider client={this._client!}>
+          <CalendarWidget {...this._config!} isLoaded={true} />
+        </ConvexProvider>
+      ),
+      this._container,
+    );
+  }
+
+  private renderNotConfigured() {
+    return render(
+      () => <CalendarWidget {...this._config!} isLoaded={false} />,
+      this._container!,
+    );
+  }
+}
 
 declare global {
   interface Window {
-    AhpatuhBookingWidget: AhpatuhBookingWidgetType;
+    AhpatuhBookingWidget: AhpatuhBookingWidget;
   }
 }
 
 if (!window.AhpatuhBookingWidget) {
-  window.AhpatuhBookingWidget = AhpatuhBookingWidget;
+  const widget = new AhpatuhBookingWidget();
+  window.AhpatuhBookingWidget = widget;
   // for local development
   if (import.meta.env.DEV) {
-    AhpatuhBookingWidget.init('ahpatuh-widget', {
+    widget.init('ahpatuh-widget', {
       primaryColor: 'blue',
       secondaryColor: 'white',
-      accentColor: 'orange',
+      isLoaded: true,
     });
   }
 }

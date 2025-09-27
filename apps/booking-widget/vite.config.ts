@@ -3,18 +3,15 @@ import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
 import devtools from 'solid-devtools/vite';
 import terser from '@rollup/plugin-terser';
-import dts from 'vite-plugin-dts';
+import tsConfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [
+    tsConfigPaths({
+      projects: ['tsconfig.json'],
+    }),
     devtools(),
     solidPlugin(),
-    dts({
-      insertTypesEntry: true,
-      rollupTypes: true,
-      include: ['src/**/*'],
-      exclude: ['src/**/*.test.*', 'src/**/*.spec.*'],
-    }),
     tailwindcss(),
   ],
   server: {
@@ -38,6 +35,7 @@ export default defineConfig({
       output: {
         entryFileNames: 'ahpatuh-widget.js',
         exports: 'named',
+        assetFileNames: 'ahpatuh-widget.css',
         plugins: [terser()],
       },
     },
