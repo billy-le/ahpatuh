@@ -1,78 +1,108 @@
-/* @refresh reload */
 import './index.css';
-import { render } from 'solid-js/web';
+import { render as solidRender } from 'solid-js/web';
 import 'solid-devtools';
-import CalendarWidget, { type CalendarWidgetProps } from './CalendarWidget';
-import { setupConvex, ConvexProvider } from 'convex-solidjs';
+import { type CalendarWidgetProps } from './CalendarWidget';
+import { ConvexProvider } from 'convex-solidjs';
+import { ConvexClient } from 'convex/browser';
+import { App } from './App';
 
-class AhpatuhBookingWidget {
-  private _client: ReturnType<typeof setupConvex> | null;
-  private _container: HTMLElement | null;
-  private _config: CalendarWidgetProps | null;
+type AhpatuhBookingWidgetConfig = CalendarWidgetProps & {
+  apiKey: string;
+};
 
-  constructor() {
-    this._client = null;
-    this._container = null;
-    this._config = null;
+const _client: ConvexClient = new ConvexClient(import.meta.env.VITE_CONVEX_URL);
+let _container: HTMLElement | null = null;
+let _config: CalendarWidgetProps | null = null;
+let _dispose: ReturnType<typeof render> | null = null;
+let _authorized = false;
+
+export async function init(
+  containerId: string,
+  config: AhpatuhBookingWidgetConfig,
+) {
+  _config = config;
+  _container = document.getElementById(containerId);
+  if (!_container) throw new Error('Ahpatuh container not found');
+
+  if (_dispose) {
+    _dispose();
+    _dispose = null;
   }
 
-  public async init(containerId: string, config: CalendarWidgetProps) {
-    this._config = config;
-    const container = this._container || document.getElementById(containerId);
-    if (!container) throw new Error('Ahpatuh container not found');
-    if (!this._container) {
-      this._container = container;
-    }
-    this._container.innerHTML = '';
-    // authenticate domain then render
-    return this.renderNotConfigured();
+  // make request once
+  if (!_authorized) {
+    await fetch(`${import.meta.env.VITE_CONVEX_SITE_URL}/api/widget`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        api_key: config.apiKey,
+      },
+    })
+      .then((res) => {
+        _authorized = true;
+        return res.json();
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
   }
 
-  public updateConfig(containerId: string, newConfig: CalendarWidgetProps) {
-    return this.init(containerId, newConfig);
-  }
+  // clear out any html before insertion
+  _container.innerHTML = '';
 
-  private initializeConvex() {
-    this._client = setupConvex(import.meta.env.VITE_CONVEX_URL);
-  }
+  _dispose = _authorized ? render() : renderNotConfigured();
+}
 
-  private render() {
-    if (this._container == null) throw new Error('Ahpatuh container not found');
-    if (this._config == null) throw new Error('Ahpatuh config not found');
-    if (this._client == null) throw new Error('Ahpatuh convex not configured');
-    return render(
-      () => (
-        <ConvexProvider client={this._client!}>
-          <CalendarWidget {...this._config!} isLoaded={true} />
-        </ConvexProvider>
-      ),
-      this._container,
-    );
-  }
+export function updateConfig(
+  containerId: string,
+  newConfig: AhpatuhBookingWidgetConfig,
+) {
+  init(containerId, newConfig);
+}
 
-  private renderNotConfigured() {
-    return render(
-      () => <CalendarWidget {...this._config!} isLoaded={false} />,
-      this._container!,
-    );
+function render() {
+  if (_container == null) throw new Error('Ahpatuh container not found');
+  if (_config == null) throw new Error('Ahpatuh config not found');
+  return solidRender(
+    () => (
+      <ConvexProvider client={_client}>
+        <App {..._config!} isLoaded={true} />
+      </ConvexProvider>
+    ),
+    _container,
+  );
+}
+
+function renderNotConfigured() {
+  return solidRender(() => <App {..._config!} isLoaded={false} />, _container!);
+}
+
+export function destroy() {
+  if (_dispose) {
+    _dispose();
+    _dispose = null;
+  }
+  if (_container) {
+    _container.innerHTML = '';
+    _container = null;
   }
 }
 
-declare global {
-  interface Window {
-    AhpatuhBookingWidget: AhpatuhBookingWidget;
-  }
-}
-
-if (!window.AhpatuhBookingWidget) {
-  const widget = new AhpatuhBookingWidget();
-  window.AhpatuhBookingWidget = widget;
-  // for local development
-  if (import.meta.env.DEV) {
-    widget.init('ahpatuh-widget', {
+if (import.meta.env.DEV) {
+  // Use a small timeout or check document.readyState
+  const start = () => {
+    init('ahpatuh-widget', {
+      apiKey: 'my_special_key',
       primaryColor: 'blue',
       secondaryColor: 'white',
       isLoaded: true,
     });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
   }
 }

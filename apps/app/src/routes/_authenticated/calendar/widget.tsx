@@ -13,6 +13,7 @@ export const useCalendarWidget = (config: {
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     const containerId = 'ahpatuh-widget';
 

@@ -1,4 +1,3 @@
-import { createSignal } from 'solid-js';
 import {
   addWeeks,
   eachDayOfInterval,
@@ -14,6 +13,7 @@ import {
   isSameDay,
 } from 'date-fns';
 import { cx } from '@ahpatuh/utils';
+import { useAppContext } from './hooks/useAppContext';
 
 export interface CalendarWidgetProps {
   isLoaded: boolean;
@@ -31,11 +31,10 @@ function CalendarWidget({
   secondaryColor,
   primaryColor,
 }: CalendarWidgetProps) {
+  const { store, setStore } = useAppContext();
   const today = startOfDay(new Date());
-  const [date, setDate] = createSignal(today);
-  const [selectedDate, setSelectedDate] = createSignal<Date | null>(today);
-  const weekStart = () => startOfWeek(date());
-  const weekEnd = () => endOfWeek(date());
+  const weekStart = () => startOfWeek(new Date());
+  const weekEnd = () => endOfWeek(new Date());
 
   const daysOfTheWeek = () =>
     eachDayOfInterval({
@@ -43,8 +42,8 @@ function CalendarWidget({
       end: weekEnd(),
     });
 
-  const getCalendarDays = (date: Date | undefined): Date[] => {
-    date = date ? date : new Date();
+  const getCalendarDays = (date: Date | null = new Date()): Date[] => {
+    date = date ?? new Date();
     const monthStart = startOfMonth(date);
     const monthEnd = endOfMonth(date);
     const calendarStart = startOfWeek(monthStart);
@@ -63,7 +62,7 @@ function CalendarWidget({
   };
 
   const isSelectedSameDay = (day: Date) => {
-    const date = selectedDate();
+    const date = store.selectedDate;
     return date ? isSameDay(date, day) : false;
   };
 
@@ -78,10 +77,14 @@ function CalendarWidget({
             const value = e.target.value;
             const date = dateParse(value, 'yyyy-MM-dd', new Date());
             if (isValid(date) && !isBefore(date, new Date())) {
-              setDate(date);
+              setStore('selectedDate', date);
             }
           }}
-          value={dateFormat(date(), 'yyyy-MM-dd')}
+          value={
+            store.selectedDate
+              ? dateFormat(store.selectedDate, 'yyyy-MM-dd')
+              : ''
+          }
         />
       )}
       <div
@@ -92,7 +95,7 @@ function CalendarWidget({
         {daysOfTheWeek().map((day) => (
           <div class='text-center'>{weekDayNameFormatter.format(day)}</div>
         ))}
-        {getCalendarDays(date()).map((day) => {
+        {getCalendarDays(store.selectedDate).map((day) => {
           if (isBefore(day, today)) return <div class='size-10' />;
 
           return (
@@ -101,16 +104,17 @@ function CalendarWidget({
               style={{
                 'background-color': primaryColor,
                 color:
-                  selectedDate() && isSelectedSameDay(day)
+                  store.selectedDate && isSelectedSameDay(day)
                     ? 'tan'
                     : (secondaryColor ?? 'black'),
               }}
               onclick={(e) => {
                 e.preventDefault();
-                setSelectedDate((sDate) => {
-                  if (sDate && isSameDay(sDate, day)) return null;
-                  return day;
-                });
+                const sDate = store.selectedDate;
+                setStore(
+                  'selectedDate',
+                  sDate && isSameDay(sDate, day) ? null : day,
+                );
               }}
             >
               {dayFormatter.format(day)}

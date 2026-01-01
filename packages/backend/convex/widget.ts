@@ -7,11 +7,14 @@ import type { Doc } from './_generated/dataModel';
 export const getBusiness = query({
   args: {
     origin: v.string(),
+    apiKey: v.string(),
   },
   handler: async (ctx, args) => {
     const domain = await ctx.db
       .query('domains')
-      .withIndex('by_name_publicKey', (q) => q.eq('name', args.origin))
+      .withIndex('by_name_publicKey', (q) =>
+        q.eq('name', args.origin).eq('publicKey', args.apiKey),
+      )
       .unique();
     if (!domain)
       throw new ConvexError({ message: 'Domain not found', code: 404 });

@@ -1,4 +1,4 @@
-import type { AhpatuhBookingWidget } from '@ahpatuh/booking-widget';
+import type { AhpatuhBookingWidget } from 'src/index';
 
 declare global {
   interface Window {
